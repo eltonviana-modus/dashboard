@@ -71,11 +71,25 @@ export type DashboardData = {
   };
 };
 
+export type RangeKey = "hoje" | "ontem" | "7d" | "mes_atual" | "mes_passado" | "custom";
+
+export type PeriodParams = {
+  range?: string;
+  start?: string;
+  end?: string;
+};
+
 const API_BASE = process.env.DASHBOARD_API_URL || "https://n8n-consult-n8n.k7je8d.easypanel.host/webhook/dashboard-data";
 
-export async function getDashboardData(token: string, days = 30): Promise<DashboardData | null> {
+export async function getDashboardData(token: string, period: PeriodParams = {}): Promise<DashboardData | null> {
   try {
-    const url = `${API_BASE}?token=${encodeURIComponent(token)}&days=${days}`;
+    const range = period.range || "7d";
+    const qs = new URLSearchParams({ token, range });
+    if (range === "custom" && period.start && period.end) {
+      qs.set("start", period.start);
+      qs.set("end", period.end);
+    }
+    const url = `${API_BASE}?${qs.toString()}`;
     const res = await fetch(url, { cache: "no-store" });
     if (!res.ok) return null;
     return (await res.json()) as DashboardData;

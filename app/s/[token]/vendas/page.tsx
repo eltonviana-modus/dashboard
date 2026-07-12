@@ -16,8 +16,14 @@ const SAUDE_LABELS: Record<string, { label: string; tone: "good" | "warn" | "bad
   saudavel: { label: "Saudável", tone: "good" }
 };
 
-export default async function VendasPage({ params }: { params: { token: string } }) {
-  const data = await getDashboardData(params.token);
+export default async function VendasPage({
+  params,
+  searchParams
+}: {
+  params: { token: string };
+  searchParams: { range?: string; start?: string; end?: string };
+}) {
+  const data = await getDashboardData(params.token, searchParams);
   if (!data) notFound();
 
   const v = data.vendas;

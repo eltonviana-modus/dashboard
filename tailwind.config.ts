@@ -24,8 +24,8 @@ const config: Config = {
           300: "#cbd5e1"
         },
         sidebar: {
-          DEFAULT: "#0f172a",
-          hover: "#1e293b"
+          DEFAULT: "#fafaf9",
+          hover: "#f0efed"
         },
         good: { DEFAULT: "#16a34a", bg: "#f0fdf4" },
         warn: { DEFAULT: "#d97706", bg: "#fffbeb" },

@@ -19,8 +19,14 @@ const PRIORIDADE_TONE: Record<string, "good" | "warn" | "bad"> = {
   Baixa: "good"
 };
 
-export default async function OperacaoPage({ params }: { params: { token: string } }) {
-  const data = await getDashboardData(params.token);
+export default async function OperacaoPage({
+  params,
+  searchParams
+}: {
+  params: { token: string };
+  searchParams: { range?: string; start?: string; end?: string };
+}) {
+  const data = await getDashboardData(params.token, searchParams);
   if (!data) notFound();
 
   const o = data.operacao;

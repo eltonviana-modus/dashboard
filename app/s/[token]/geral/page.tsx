@@ -7,8 +7,14 @@ import Badge from "@/components/Badge";
 import RevenueChart from "@/components/RevenueChart";
 import { formatBRL, formatNumber, formatPct, formatDateBR } from "@/lib/format";
 
-export default async function GeralPage({ params }: { params: { token: string } }) {
-  const data = await getDashboardData(params.token);
+export default async function GeralPage({
+  params,
+  searchParams
+}: {
+  params: { token: string };
+  searchParams: { range?: string; start?: string; end?: string };
+}) {
+  const data = await getDashboardData(params.token, searchParams);
   if (!data) notFound();
 
   const g = data.geral;
@@ -34,7 +40,10 @@ export default async function GeralPage({ params }: { params: { token: string } 
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <Section title="Faturamento diário" description={`Últimos ${data.periodo.dias} dias`}>
+          <Section
+            title="Faturamento diário"
+            description={`${formatDateBR(data.periodo.atual.inicio)} – ${formatDateBR(data.periodo.atual.fim)}`}
+          >
             <RevenueChart data={data.vendas.serie_faturamento_diario} />
           </Section>
         </div>

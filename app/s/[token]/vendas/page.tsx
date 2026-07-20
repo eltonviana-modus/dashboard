@@ -4,6 +4,9 @@ import DashboardChrome from "@/components/DashboardChrome";
 import Section from "@/components/Section";
 import Badge from "@/components/Badge";
 import SimpleTable from "@/components/SimpleTable";
+import VendasVisitasDrilldown from "@/components/VendasVisitasDrilldown";
+import CurvaAbcTable from "@/components/CurvaAbcTable";
+import CampanhasChart from "@/components/CampanhasChart";
 import { formatBRL, formatNumber, formatPct } from "@/lib/format";
 
 const SAUDE_LABELS: Record<string, { label: string; tone: "good" | "warn" | "bad" | "neutral" }> = {
@@ -27,12 +30,20 @@ export default async function VendasPage({
   if (!data) notFound();
 
   const v = data.vendas;
+  const v_campanhas = data.campanhas;
   const urgentes = ["em_ruptura", "ruptura_iminente", "critico"]
     .flatMap((k) => (v.produtos_60d[k] || []).map((p) => ({ ...p, categoria: k })))
     .slice(0, 20);
 
   return (
     <DashboardChrome token={params.token} active="vendas" data={data}>
+      <VendasVisitasDrilldown
+        serieFaturamento={v.serie_faturamento_diario}
+        serieVisitas={v.serie_visitas_diario}
+        vendasPorDia={v.vendas_por_dia}
+        visitasPorDia={v.visitas_por_dia}
+      />
+
       <Section title="Saúde de estoque (Produtos 60D)" description="Classificação por giro e cobertura de estoque">
         <div className="mb-4 flex flex-wrap gap-2">
           {Object.entries(v.produtos_60d_resumo).map(([k, count]) => (
@@ -61,22 +72,7 @@ export default async function VendasPage({
       </Section>
 
       <Section title="Curva ABC" description="Participação no faturamento dos últimos 60 dias">
-        <SimpleTable
-          columns={[
-            { key: "titulo", label: "Produto" },
-            { key: "sku", label: "SKU" },
-            { key: "classe", label: "Classe" },
-            { key: "fat", label: "Faturamento 60d", align: "right" },
-            { key: "acum", label: "% acumulado", align: "right" }
-          ]}
-          rows={v.curva_abc.slice(0, 20).map((i) => ({
-            titulo: i.titulo,
-            sku: i.sku,
-            classe: <Badge tone={i.classe === "A" ? "good" : i.classe === "B" ? "warn" : "neutral"}>{i.classe}</Badge>,
-            fat: formatBRL(i.faturamento_60d),
-            acum: formatPct(i.pct_acumulado)
-          }))}
-        />
+        <CurvaAbcTable items={v.curva_abc} />
       </Section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
@@ -113,23 +109,11 @@ export default async function VendasPage({
         </Section>
       </div>
 
-      <Section title="Pesquisa de mercado" description="Concorrentes monitorados">
-        <SimpleTable
-          columns={[
-            { key: "titulo", label: "Produto" },
-            { key: "preco", label: "Preço", align: "right" },
-            { key: "visitas", label: "Visitas 30d", align: "right" },
-            { key: "fat", label: "Faturamento 30d", align: "right" },
-            { key: "conv", label: "Conversão 7d", align: "right" }
-          ]}
-          rows={v.pesquisa_mercado.map((p) => ({
-            titulo: p.titulo,
-            preco: formatBRL(p.preco_promocional > 0 ? p.preco_promocional : p.preco),
-            visitas: formatNumber(p.visitas_30d),
-            fat: formatBRL(p.faturamento_30d),
-            conv: formatPct(p.conversao_atual_7d)
-          }))}
-        />
+      <Section
+        title="Campanhas"
+        description={`${v_campanhas.disponiveis} campanhas disponíveis · participando em ${v_campanhas.participando}`}
+      >
+        <CampanhasChart data={v_campanhas.por_campanha} />
       </Section>
     </DashboardChrome>
   );

@@ -4,8 +4,30 @@ import DashboardChrome from "@/components/DashboardChrome";
 import KpiCard from "@/components/KpiCard";
 import Section from "@/components/Section";
 import Badge from "@/components/Badge";
-import RevenueChart from "@/components/RevenueChart";
+import StatusPieChart from "@/components/StatusPieChart";
+import ReputacaoTermometro from "@/components/ReputacaoTermometro";
+import { Award, XCircle, Clock3, MessageSquareWarning, Undo2, ShieldAlert } from "lucide-react";
 import { formatBRL, formatNumber, formatPct, formatDateBR } from "@/lib/format";
+
+const ESTOQUE_LABELS: Record<string, string> = {
+  em_ruptura: "Em ruptura",
+  ruptura_iminente: "Ruptura iminente",
+  critico: "Crítico",
+  atencao: "Atenção",
+  saudavel: "Saudável",
+  excedente: "Excedente",
+  sem_vendas: "Parado (sem venda)"
+};
+
+const ESTOQUE_CORES: Record<string, string> = {
+  em_ruptura: "#dc2626",
+  ruptura_iminente: "#f97316",
+  critico: "#f59e0b",
+  atencao: "#eab308",
+  saudavel: "#22c55e",
+  excedente: "#0891b2",
+  sem_vendas: "#64748b"
+};
 
 export default async function GeralPage({
   params,
@@ -20,13 +42,12 @@ export default async function GeralPage({
   const g = data.geral;
   const saude = g.saude_conta;
 
-  const reputacaoTone = saude.nivel_reputacao?.toLowerCase().includes("verde")
-    ? "good"
-    : saude.nivel_reputacao?.toLowerCase().includes("amarel")
-    ? "warn"
-    : saude.nivel_reputacao
-    ? "bad"
-    : "neutral";
+  const estoqueChartData = Object.fromEntries(
+    Object.entries(data.vendas.produtos_60d_resumo).map(([k, v]) => [ESTOQUE_LABELS[k] ?? k, v])
+  );
+  const estoqueColorMap = Object.fromEntries(
+    Object.entries(data.vendas.produtos_60d_resumo).map(([k]) => [ESTOQUE_LABELS[k] ?? k, ESTOQUE_CORES[k] ?? "#64748b"])
+  );
 
   return (
     <DashboardChrome token={params.token} active="geral" data={data}>
@@ -39,43 +60,67 @@ export default async function GeralPage({
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <div className="lg:col-span-2">
-          <Section
-            title="Faturamento diário"
-            description={`${formatDateBR(data.periodo.atual.inicio)} – ${formatDateBR(data.periodo.atual.fim)}`}
-          >
-            <RevenueChart data={data.vendas.serie_faturamento_diario} />
-          </Section>
-        </div>
-
         <Section title="Saúde da conta">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-ink-500">Reputação</span>
-              <Badge tone={reputacaoTone as any}>{saude.nivel_reputacao || "Sem dado"}</Badge>
+          <div className="space-y-4">
+            <div>
+              <div className="mb-1 flex items-center gap-2">
+                <ShieldAlert size={15} className="text-ink-500" />
+                <span className="text-xs text-ink-500">Reputação</span>
+              </div>
+              <ReputacaoTermometro nivelReputacao={saude.nivel_reputacao} />
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-ink-500">Medalha</span>
+              <span className="flex items-center gap-2 text-xs text-ink-500">
+                <Award size={15} className="text-ink-500" /> Medalha
+              </span>
               <span className="text-xs font-medium text-ink-900">{saude.medalha || "-"}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-ink-500">Taxa de cancelamento</span>
+              <span className="flex items-center gap-2 text-xs text-ink-500">
+                <XCircle size={15} className="text-ink-500" /> Taxa de cancelamento
+              </span>
               <span className="text-xs font-medium text-ink-900">{formatPct(saude.tx_cancelamento)}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-xs text-ink-500">Taxa de atraso</span>
+              <span className="flex items-center gap-2 text-xs text-ink-500">
+                <Clock3 size={15} className="text-ink-500" /> Taxa de atraso
+              </span>
               <span className="text-xs font-medium text-ink-900">{formatPct(saude.tx_atraso)}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-ink-500">Reclamações abertas</span>
-              <span className="text-xs font-medium text-ink-900">{saude.reclamacoes_abertas}</span>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs text-ink-500">Mediações abertas</span>
-              <span className="text-xs font-medium text-ink-900">{saude.mediacoes_abertas}</span>
             </div>
           </div>
         </Section>
+
+        <Section title="Status dos anúncios" description={`${data.operacao.total_anuncios} anúncios monitorados`}>
+          <StatusPieChart data={data.operacao.anuncios_por_status} />
+        </Section>
+
+        <Section title="Saúde do estoque" description="Classificação por giro e cobertura (60d)">
+          <StatusPieChart data={estoqueChartData} colorMap={estoqueColorMap} />
+        </Section>
+      </div>
+
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div className="flex items-center gap-3 rounded-lg border border-ink-300/40 bg-surface-1 p-4">
+          <MessageSquareWarning size={20} className="text-bad" />
+          <div>
+            <p className="text-xs text-ink-500">Reclamações em aberto</p>
+            <p className="text-lg font-semibold text-ink-900">{saude.reclamacoes_abertas}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 rounded-lg border border-ink-300/40 bg-surface-1 p-4">
+          <Undo2 size={20} className="text-warn" />
+          <div>
+            <p className="text-xs text-ink-500">Devoluções no período</p>
+            <p className="text-lg font-semibold text-ink-900">{data.operacao.total_devolucoes}</p>
+          </div>
+        </div>
+        <div className="flex items-center gap-3 rounded-lg border border-ink-300/40 bg-surface-1 p-4">
+          <ShieldAlert size={20} className="text-ink-500" />
+          <div>
+            <p className="text-xs text-ink-500">Mediações abertas</p>
+            <p className="text-lg font-semibold text-ink-900">{saude.mediacoes_abertas}</p>
+          </div>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
@@ -112,6 +157,38 @@ export default async function GeralPage({
                 {g.resumo_automacao.alertas_alta_prioridade}
               </Badge>
             </div>
+            {g.resumo_automacao.acoes_identificadas_7d !== undefined && (
+              <>
+                <div className="my-2 border-t border-ink-300/30" />
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-ink-500">Problemas identificados (7d)</span>
+                  <span className="text-sm font-semibold text-ink-900">{g.resumo_automacao.acoes_identificadas_7d}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-ink-500">Fechados pelo seller (7d)</span>
+                  <span className="text-sm font-semibold text-ink-900">{g.resumo_automacao.acoes_resolvidas_7d}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-ink-500">Taxa de resolução (7d)</span>
+                  <span className="text-sm font-semibold text-ink-900">
+                    {g.resumo_automacao.taxa_resolucao_7d_pct != null ? formatPct(g.resumo_automacao.taxa_resolucao_7d_pct) : "-"}
+                  </span>
+                </div>
+              </>
+            )}
+            {g.resumo_automacao.perguntas_respondidas_ia !== undefined && (
+              <>
+                <div className="my-2 border-t border-ink-300/30" />
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-ink-500">Perguntas respondidas pela IA</span>
+                  <span className="text-sm font-semibold text-ink-900">{g.resumo_automacao.perguntas_respondidas_ia}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-xs text-ink-500">Total respondidas (IA + loja)</span>
+                  <span className="text-sm font-semibold text-ink-900">{g.resumo_automacao.perguntas_respondidas_total}</span>
+                </div>
+              </>
+            )}
           </div>
         </Section>
       </div>

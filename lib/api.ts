@@ -32,10 +32,20 @@ export type DashboardData = {
       anuncios_ativos: number;
       acoes_pendentes: number;
       alertas_alta_prioridade: number;
+      acoes_identificadas_7d?: number;
+      acoes_resolvidas_7d?: number;
+      taxa_resolucao_7d_pct?: number | null;
+      tempo_medio_resolucao_dias?: number | null;
+      perguntas_respondidas_ia?: number;
+      perguntas_respondidas_total?: number;
+      perguntas_recebidas_periodo?: number;
     };
   };
   vendas: {
     serie_faturamento_diario: { data: string; faturamento: number }[];
+    serie_visitas_diario: { data: string; visitas: number }[];
+    vendas_por_dia: Record<string, { produto: string; sku: string | number; valor: number; pedidos: number }[]>;
+    visitas_por_dia: Record<string, { item_id: string; titulo: string; sku: string | number; visitas: number }[]>;
     curva_abc: {
       item_id: string;
       sku: string | number;
@@ -53,6 +63,11 @@ export type DashboardData = {
     }[];
     preco_risco: { item_id: string; sku: string | number; titulo: string; diferenca_pct: number; menor_preco_concorrente: number; link?: string }[];
     preco_oportunidade: { item_id: string; sku: string | number; titulo: string; diferenca_pct: number; menor_preco_concorrente: number }[];
+  };
+  campanhas: {
+    disponiveis: number;
+    participando: number;
+    por_campanha: { nome: string; disponiveis: number; participando: number }[];
   };
   operacao: {
     anuncios_por_status: Record<string, number>;

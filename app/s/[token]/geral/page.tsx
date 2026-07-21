@@ -6,6 +6,7 @@ import Section from "@/components/Section";
 import Badge from "@/components/Badge";
 import StatusPieChart from "@/components/StatusPieChart";
 import ReputacaoTermometro from "@/components/ReputacaoTermometro";
+import MotivoBarChart from "@/components/MotivoBarChart";
 import { Award, XCircle, Clock3, MessageSquareWarning, Undo2, ShieldAlert } from "lucide-react";
 import { formatBRL, formatNumber, formatPct, formatDateBR } from "@/lib/format";
 
@@ -123,6 +124,10 @@ export default async function GeralPage({
         </div>
       </div>
 
+      <Section title="Devoluções por motivo" description="Distribuição dos motivos de devolução no período">
+        <MotivoBarChart data={data.operacao.devolucoes_por_motivo} color="#f97316" emptyLabel="Nenhuma devolução no período." />
+      </Section>
+
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <Section
@@ -130,7 +135,7 @@ export default async function GeralPage({
             description={data.geral.relatorio_data ? `Gerado em ${formatDateBR(data.geral.relatorio_data)}` : undefined}
           >
             {g.relatorio_gerente_geral ? (
-              <pre className="whitespace-pre-wrap font-sans text-sm leading-relaxed text-ink-700">
+              <pre className="max-h-72 overflow-y-auto whitespace-pre-wrap font-sans text-sm leading-relaxed text-ink-700">
                 {g.relatorio_gerente_geral}
               </pre>
             ) : (

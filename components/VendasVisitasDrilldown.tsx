@@ -24,11 +24,8 @@ export default function VendasVisitasDrilldown({
   vendasPorDia: Record<string, VendaDia[]>;
   visitasPorDia: Record<string, VisitaDia[]>;
 }) {
-  const ultimoDia = serieFaturamento.length ? serieFaturamento[serieFaturamento.length - 1].data : null;
-  const [diaVendas, setDiaVendas] = useState<string | null>(ultimoDia);
-  const [diaVisitas, setDiaVisitas] = useState<string | null>(
-    serieVisitas.length ? serieVisitas[serieVisitas.length - 1].data : ultimoDia
-  );
+  const [diaVendas, setDiaVendas] = useState<string | null>(null);
+  const [diaVisitas, setDiaVisitas] = useState<string | null>(null);
 
   const chartVendas = useMemo(
     () => serieFaturamento.map((d) => ({ dia: diaCurto(d.data), diaIso: d.data, valor: d.faturamento })),
@@ -39,19 +36,48 @@ export default function VendasVisitasDrilldown({
     [serieVisitas]
   );
 
-  const itensDoDiaVendas = diaVendas ? vendasPorDia[diaVendas] || [] : [];
-  const itensDoDiaVisitas = diaVisitas ? visitasPorDia[diaVisitas] || [] : [];
+  const totalPeriodoVendas = useMemo(() => {
+    const agg: Record<string, VendaDia> = {};
+    for (const dia of Object.keys(vendasPorDia)) {
+      for (const item of vendasPorDia[dia]) {
+        const key = `${item.sku}||${item.produto}`;
+        if (!agg[key]) agg[key] = { produto: item.produto, sku: item.sku, valor: 0, pedidos: 0 };
+        agg[key].valor += item.valor;
+        agg[key].pedidos += item.pedidos;
+      }
+    }
+    return Object.values(agg).sort((a, b) => b.valor - a.valor);
+  }, [vendasPorDia]);
+
+  const totalPeriodoVisitas = useMemo(() => {
+    const agg: Record<string, VisitaDia> = {};
+    for (const dia of Object.keys(visitasPorDia)) {
+      for (const item of visitasPorDia[dia]) {
+        if (!agg[item.item_id]) agg[item.item_id] = { ...item, visitas: 0 };
+        agg[item.item_id].visitas += item.visitas;
+      }
+    }
+    return Object.values(agg).sort((a, b) => b.visitas - a.visitas);
+  }, [visitasPorDia]);
+
+  const itensDoDiaVendas = diaVendas ? vendasPorDia[diaVendas] || [] : totalPeriodoVendas;
+  const itensDoDiaVisitas = diaVisitas ? visitasPorDia[diaVisitas] || [] : totalPeriodoVisitas;
 
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-      <Section title="Vendas por dia" description={diaVendas ? `Itens vendidos em ${formatDateBR(diaVendas)}` : undefined}>
+      <Section
+        title="Faturamento"
+        description={diaVendas ? `Itens vendidos em ${formatDateBR(diaVendas)} · clique de novo pra ver o período todo` : "Total do período · clique numa barra para detalhar o dia"}
+      >
         {chartVendas.length ? (
           <ResponsiveContainer width="100%" height={220}>
             <BarChart
               data={chartVendas}
               margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
               onClick={(state: any) => {
-                if (state?.activePayload?.[0]?.payload?.diaIso) setDiaVendas(state.activePayload[0].payload.diaIso);
+                const clicked = state?.activePayload?.[0]?.payload?.diaIso;
+                if (!clicked) return;
+                setDiaVendas((cur) => (cur === clicked ? null : clicked));
               }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -75,6 +101,14 @@ export default function VendasVisitasDrilldown({
           <SimpleTable
             emptyLabel="Nenhuma venda nesse dia."
             maxHeight="12rem"
+            exportFilename={`faturamento_${diaVendas || "periodo"}`}
+            exportColumns={[
+              { key: "sku", label: "SKU" },
+              { key: "produto", label: "Produto" },
+              { key: "pedidos", label: "Pedidos" },
+              { key: "valor", label: "Faturamento" }
+            ]}
+            exportRows={itensDoDiaVendas.map((i) => ({ sku: i.sku, produto: i.produto, pedidos: i.pedidos, valor: i.valor }))}
             columns={[
               { key: "sku", label: "SKU" },
               { key: "produto", label: "Produto" },
@@ -91,14 +125,19 @@ export default function VendasVisitasDrilldown({
         </div>
       </Section>
 
-      <Section title="Visitas por dia" description={diaVisitas ? `Produtos visitados em ${formatDateBR(diaVisitas)}` : undefined}>
+      <Section
+        title="Visitas"
+        description={diaVisitas ? `Produtos visitados em ${formatDateBR(diaVisitas)} · clique de novo pra ver o período todo` : "Total do período · clique numa barra para detalhar o dia"}
+      >
         {chartVisitas.length ? (
           <ResponsiveContainer width="100%" height={220}>
             <BarChart
               data={chartVisitas}
               margin={{ top: 8, right: 8, left: 0, bottom: 0 }}
               onClick={(state: any) => {
-                if (state?.activePayload?.[0]?.payload?.diaIso) setDiaVisitas(state.activePayload[0].payload.diaIso);
+                const clicked = state?.activePayload?.[0]?.payload?.diaIso;
+                if (!clicked) return;
+                setDiaVisitas((cur) => (cur === clicked ? null : clicked));
               }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
@@ -122,6 +161,13 @@ export default function VendasVisitasDrilldown({
           <SimpleTable
             emptyLabel="Nenhuma visita nesse dia."
             maxHeight="12rem"
+            exportFilename={`visitas_${diaVisitas || "periodo"}`}
+            exportColumns={[
+              { key: "sku", label: "SKU" },
+              { key: "titulo", label: "Produto" },
+              { key: "visitas", label: "Visitas" }
+            ]}
+            exportRows={itensDoDiaVisitas.map((i) => ({ sku: i.sku, titulo: i.titulo, visitas: i.visitas }))}
             columns={[
               { key: "sku", label: "SKU" },
               { key: "titulo", label: "Produto" },

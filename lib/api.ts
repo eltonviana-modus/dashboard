@@ -57,6 +57,12 @@ export type DashboardData = {
     trafego_por_item: { item_id: string; visitas: number; pedidos: number; conversao_pct: number }[];
     produtos_60d: Record<string, { item_id: string; sku: string | number; titulo: string; estoque_disponivel: number; giro_60d: number; cobertura_dias: number }[]>;
     produtos_60d_resumo: Record<string, number>;
+    produtos_60d_lista: { item_id: string; sku: string | number; titulo: string; estoque_disponivel: number; giro_60d: number; cobertura_dias: number; categoria: string }[];
+    produtos_problematicos_lista: {
+      item_id: string; sku: string | number; titulo: string; estoque_disponivel: number;
+      visitas_7d: number; vendas_7d: number; conversao_pct: number; categoria: string;
+      variacao_visitas_pct?: number; dias_sem_estoque?: number; faturamento_perdido_estimado?: number;
+    }[];
     pesquisa_mercado: {
       item_id: string; sku: string | number; titulo: string; preco: number; preco_promocional: number;
       visitas_30d: number; faturamento_30d: number; conversao_atual_7d: number; conversao_anterior_7d: number;
@@ -71,6 +77,7 @@ export type DashboardData = {
   };
   operacao: {
     anuncios_por_status: Record<string, number>;
+    anuncios_lista: { item_id: string; sku: string | number; titulo: string; status: string; estoque: number }[];
     total_anuncios: number;
     acoes_por_prioridade: Record<string, {
       sku: string | number; item_id: string; produto: string; categoria: string; problema: string;
@@ -81,6 +88,7 @@ export type DashboardData = {
     reclamacoes_por_motivo: Record<string, number>;
     total_reclamacoes: number;
     total_devolucoes: number;
+    devolucoes_por_motivo: Record<string, number>;
     ads_resumo: Record<string, number>;
     ads_performance: { item_id: string; sku: string | number; titulo: string; roas: number; acos: number; margem_pct: number; custo_ads: number; classificacao: string }[];
   };

@@ -52,6 +52,21 @@ export default function CurvaAbcTable({ items }: { items: CurvaItem[] }) {
         )}
       </div>
       <SimpleTable
+        exportFilename="curva_abc"
+        exportColumns={[
+          { key: "sku", label: "SKU" },
+          { key: "titulo", label: "Produto" },
+          { key: "classe", label: "Classe" },
+          { key: "fat", label: "Faturamento 60d" },
+          { key: "acum", label: "% acumulado" }
+        ]}
+        exportRows={filtrados.map((i) => ({
+          sku: i.sku,
+          titulo: i.titulo,
+          classe: i.classe,
+          fat: i.faturamento_60d,
+          acum: i.pct_acumulado
+        }))}
         columns={[
           { key: "sku", label: "SKU" },
           { key: "titulo", label: "Produto" },

@@ -6,15 +6,8 @@ import KpiCard from "@/components/KpiCard";
 import VendasVisitasDrilldown from "@/components/VendasVisitasDrilldown";
 import CurvaAbcTable from "@/components/CurvaAbcTable";
 import CampanhasChart from "@/components/CampanhasChart";
-import TaggedListing from "@/components/TaggedListing";
+import AnaliseVisitasListing from "@/components/AnaliseVisitasListing";
 import { formatBRL, formatNumber, formatPct } from "@/lib/format";
-
-const ANALISE_LABELS: Record<string, { label: string; tone: "good" | "warn" | "bad" | "neutral" }> = {
-  muita_visita_sem_venda: { label: "Muita visita sem venda", tone: "warn" },
-  sem_visita: { label: "Sem visita", tone: "neutral" },
-  queda_trafego: { label: "Queda de tráfego", tone: "warn" },
-  ruptura_com_venda: { label: "Ruptura com venda perdida", tone: "bad" }
-};
 
 export default async function VendasPage({
   params,
@@ -52,28 +45,7 @@ export default async function VendasPage({
       </Section>
 
       <Section title="Análise de visitas" description="Padrões de tráfego e conversão que pedem atenção">
-        <TaggedListing
-          items={v.produtos_problematicos_lista}
-          categoriaKey="categoria"
-          tagLabel={(cat) => ANALISE_LABELS[cat] ?? { label: cat, tone: "neutral" }}
-          exportFilename="analise_de_visitas"
-          emptyLabel="Nenhum produto com padrão de atenção no período."
-          searchKeys={["titulo", "sku"]}
-          columns={[
-            { key: "titulo", label: "Produto" },
-            { key: "sku", label: "SKU" },
-            { key: "estoque_disponivel", label: "Estoque", align: "right" },
-            { key: "visitas_7d", label: "Visitas", align: "right" },
-            { key: "vendas_7d", label: "Vendas", align: "right" },
-            {
-              key: "conversao_pct",
-              label: "Conversão",
-              align: "right",
-              value: (i) => i.conversao_pct,
-              render: (i) => formatPct(i.conversao_pct)
-            }
-          ]}
-        />
+        <AnaliseVisitasListing items={v.produtos_problematicos_lista} />
       </Section>
 
       <Section

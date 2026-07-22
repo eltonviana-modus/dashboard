@@ -5,14 +5,19 @@ import TaggedListing from "@/components/TaggedListing";
 
 type Anuncio = { item_id: string; sku: string | number; titulo: string; status: string; estoque: number };
 
+// Status reais gerados pela coleta de anúncios (WF 03a): Ativo, Ativo - Moderado,
+// Pausado - Manual, Pausado - Estoque, Pausado - Infracao, Inativo - Revisar (+ "Sem status"
+// como fallback). Usar prefixo em vez de igualdade exata pra não perder variantes como
+// "Ativo - Moderado" (antes caía como neutro por comparar só com "Ativo").
 function toneParaStatus(status: string): "good" | "warn" | "bad" | "neutral" {
-  if (status === "Ativo") return "good";
-  if (status.toLowerCase().includes("pausad")) return "warn";
-  if (status.toLowerCase().includes("finaliz") || status.toLowerCase().includes("fechad")) return "bad";
+  const s = status.toLowerCase();
+  if (s.startsWith("ativo")) return "good";
+  if (s.startsWith("pausad")) return "warn";
+  if (s.startsWith("inativo")) return "bad";
   return "neutral";
 }
 
-export default function AnunciosListing({ items }: { items: Anuncio[] }) {
+export default function AnunciosListing({ items, maxHeight }: { items: Anuncio[]; maxHeight?: string | null }) {
   return (
     <TaggedListing
       items={items}
@@ -21,6 +26,7 @@ export default function AnunciosListing({ items }: { items: Anuncio[] }) {
       exportFilename="status_dos_anuncios"
       emptyLabel="Nenhum anúncio encontrado."
       searchKeys={["titulo", "sku"]}
+      maxHeight={maxHeight}
       columns={[
         { key: "titulo", label: "Anúncio" },
         { key: "sku", label: "SKU" },

@@ -6,10 +6,12 @@ const PALETTE = ["#2563eb", "#16a34a", "#f59e0b", "#dc2626", "#7c3aed", "#0891b2
 
 export default function StatusPieChart({
   data,
-  colorMap
+  colorMap,
+  height = 240
 }: {
   data: Record<string, number>;
   colorMap?: Record<string, string>;
+  height?: number;
 }) {
   const entries = Object.entries(data).filter(([, v]) => v > 0);
   if (!entries.length) {
@@ -18,7 +20,7 @@ export default function StatusPieChart({
   const chartData = entries.map(([name, value]) => ({ name, value }));
 
   return (
-    <ResponsiveContainer width="100%" height={240}>
+    <ResponsiveContainer width="100%" height={height}>
       <PieChart>
         <Pie data={chartData} dataKey="value" nameKey="name" cx="50%" cy="50%" innerRadius={45} outerRadius={80} paddingAngle={2}>
           {chartData.map((entry, i) => (

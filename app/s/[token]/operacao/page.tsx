@@ -8,7 +8,21 @@ import AnunciosListing from "@/components/AnunciosListing";
 import SaudeEstoqueListing from "@/components/SaudeEstoqueListing";
 import AcoesIaListing from "@/components/AcoesIaListing";
 import ReclamacoesInterativo from "@/components/ReclamacoesInterativo";
+import StatusPieChart from "@/components/StatusPieChart";
 import { formatBRL } from "@/lib/format";
+
+// Status reais que a coleta de anúncios (WF 03a) gera hoje. Não existe status
+// "Mediação" — mediação é uma métrica separada, ligada a reclamações/disputas de
+// pedido, não ao status do anúncio.
+const STATUS_ANUNCIO_CORES: Record<string, string> = {
+  Ativo: "#16a34a",
+  "Ativo - Moderado": "#22c55e",
+  "Pausado - Manual": "#eab308",
+  "Pausado - Estoque": "#f97316",
+  "Pausado - Infracao": "#dc2626",
+  "Inativo - Revisar": "#7c3aed",
+  "Sem status": "#94a3b8"
+};
 
 export default async function OperacaoPage({
   params,
@@ -43,7 +57,10 @@ export default async function OperacaoPage({
       </Section>
 
       <Section title="Status dos anúncios" description={`${o.total_anuncios} anúncios monitorados`}>
-        <AnunciosListing items={o.anuncios_lista} />
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2 lg:items-center">
+          <StatusPieChart data={o.anuncios_por_status} colorMap={STATUS_ANUNCIO_CORES} height={320} />
+          <AnunciosListing items={o.anuncios_lista} maxHeight="20rem" />
+        </div>
       </Section>
 
       <Section title="Saúde de estoque (Produtos 60D)" description="Classificação por giro e cobertura de estoque">

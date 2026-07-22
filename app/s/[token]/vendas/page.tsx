@@ -44,7 +44,10 @@ export default async function VendasPage({
         <CurvaAbcTable items={v.curva_abc} />
       </Section>
 
-      <Section title="Análise de visitas" description="Padrões de tráfego e conversão que pedem atenção">
+      <Section
+        title="Análise de visitas"
+        description="Padrões de tráfego e conversão que pedem atenção · calculado sobre os últimos 7 dias (janela fixa, diferente do período selecionado acima e dos 60 dias da Curva ABC)"
+      >
         <AnaliseVisitasListing items={v.produtos_problematicos_lista} />
       </Section>
 

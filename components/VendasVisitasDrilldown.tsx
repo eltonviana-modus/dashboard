@@ -99,6 +99,7 @@ export default function VendasVisitasDrilldown({
         )}
         <div className="mt-3">
           <SimpleTable
+            key={diaVendas ?? "periodo"}
             emptyLabel="Nenhuma venda nesse dia."
             maxHeight="12rem"
             exportFilename={`faturamento_${diaVendas || "periodo"}`}
@@ -159,6 +160,7 @@ export default function VendasVisitasDrilldown({
         )}
         <div className="mt-3">
           <SimpleTable
+            key={diaVisitas ?? "periodo"}
             emptyLabel="Nenhuma visita nesse dia."
             maxHeight="12rem"
             exportFilename={`visitas_${diaVisitas || "periodo"}`}

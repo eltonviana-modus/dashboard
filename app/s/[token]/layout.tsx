@@ -1,14 +1,6 @@
-import { getDashboardData } from "@/lib/api";
-import { notFound } from "next/navigation";
-
-export default async function SellerLayout({
-  children,
-  params
-}: {
-  children: React.ReactNode;
-  params: { token: string };
-}) {
-  const data = await getDashboardData(params.token);
-  if (!data) notFound();
+// A validação do token acontece em cada página (geral/vendas/operacao), que já
+// busca os dados com o período correto via searchParams. Buscar aqui de novo
+// duplicava a chamada ao webhook em toda navegação — removido de propósito.
+export default function SellerLayout({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }

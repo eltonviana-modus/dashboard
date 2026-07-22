@@ -52,6 +52,7 @@ export default function CurvaAbcTable({ items }: { items: CurvaItem[] }) {
         )}
       </div>
       <SimpleTable
+        key={filtro ?? "all"}
         exportFilename="curva_abc"
         exportColumns={[
           { key: "sku", label: "SKU" },

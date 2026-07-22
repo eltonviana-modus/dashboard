@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useDeferredValue, useMemo, useState } from "react";
 import Badge from "@/components/Badge";
 import SimpleTable from "@/components/SimpleTable";
 import type { CsvColumn } from "@/lib/csv";
@@ -36,6 +36,9 @@ export default function TaggedListing<T extends Record<string, any>>({
 }) {
   const [filtro, setFiltro] = useState<string | null>(null);
   const [busca, setBusca] = useState("");
+  // useDeferredValue mantém o input responsivo e adia o refiltro/remapeamento
+  // de listas grandes (centenas de SKUs) pra fora do caminho crítico de digitação.
+  const deferredBusca = useDeferredValue(busca);
 
   const contagem = useMemo(() => {
     const c: Record<string, number> = {};
@@ -51,12 +54,12 @@ export default function TaggedListing<T extends Record<string, any>>({
 
   const filtrados = useMemo(() => {
     let out = filtro ? items.filter((i) => String(i[categoriaKey] ?? "") === filtro) : items;
-    if (busca.trim() && searchKeys?.length) {
-      const termo = busca.trim().toLowerCase();
+    if (deferredBusca.trim() && searchKeys?.length) {
+      const termo = deferredBusca.trim().toLowerCase();
       out = out.filter((i) => searchKeys.some((k) => String(i[k] ?? "").toLowerCase().includes(termo)));
     }
     return out;
-  }, [items, filtro, categoriaKey, busca, searchKeys]);
+  }, [items, filtro, categoriaKey, deferredBusca, searchKeys]);
 
   const exportColumns: CsvColumn[] = columns.map((c) => ({ key: c.key, label: c.label }));
   const exportRows = filtrados.map((item) => {
@@ -72,11 +75,13 @@ export default function TaggedListing<T extends Record<string, any>>({
       <div className="mb-3 flex flex-wrap items-center gap-2">
         {categorias.map((cat) => {
           const t = tagLabel(cat);
+          const active = filtro === cat;
           return (
             <button
               key={cat}
               onClick={() => setFiltro((f) => (f === cat ? null : cat))}
-              className={`rounded-full transition-opacity ${filtro && filtro !== cat ? "opacity-40" : "opacity-100"}`}
+              aria-pressed={active}
+              className={`rounded-full transition-opacity ${filtro && !active ? "opacity-40" : "opacity-100"}`}
             >
               <Badge tone={t.tone}>
                 {t.label} ({contagem[cat]})
@@ -94,11 +99,13 @@ export default function TaggedListing<T extends Record<string, any>>({
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
             placeholder="Buscar..."
+            aria-label="Buscar na listagem"
             className="ml-auto w-40 rounded-md border border-ink-300/40 bg-surface-1 px-2 py-1 text-xs text-ink-700 outline-none focus:border-ink-500"
           />
         ) : null}
       </div>
       <SimpleTable
+        key={`${filtro ?? "all"}::${deferredBusca}`}
         emptyLabel={emptyLabel}
         maxHeight={maxHeight}
         exportFilename={exportFilename}

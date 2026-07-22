@@ -113,7 +113,10 @@ export async function getDashboardData(token: string, period: PeriodParams = {})
       qs.set("end", period.end);
     }
     const url = `${API_BASE}?${qs.toString()}`;
-    const res = await fetch(url, { cache: "no-store" });
+    // Os dados vêm de pipelines batch (atualização a cada poucos minutos/horas), não em
+    // tempo real. Um revalidate curto evita bater no webhook/Postgres a cada navegação
+    // de aba ou clique de período, sem perder frescor perceptível.
+    const res = await fetch(url, { next: { revalidate: 120 } });
     if (!res.ok) return null;
     return (await res.json()) as DashboardData;
   } catch {

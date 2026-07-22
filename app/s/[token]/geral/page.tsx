@@ -125,7 +125,7 @@ export default async function GeralPage({
       </div>
 
       <Section title="Devoluções por motivo" description="Distribuição dos motivos de devolução no período">
-        <MotivoBarChart data={data.operacao.devolucoes_por_motivo} color="#f97316" emptyLabel="Nenhuma devolução no período." />
+        <MotivoBarChart data={data.operacao.devolucoes_por_motivo} emptyLabel="Nenhuma devolução no período." />
       </Section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

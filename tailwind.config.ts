@@ -32,7 +32,7 @@ const config: Config = {
         bad: { DEFAULT: "#dc2626", bg: "#fef2f2" }
       },
       fontFamily: {
-        sans: ["Inter", "ui-sans-serif", "system-ui", "sans-serif"]
+        sans: ["var(--font-inter)", "ui-sans-serif", "system-ui", "sans-serif"]
       }
     }
   },

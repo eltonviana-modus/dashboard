@@ -1,15 +1,17 @@
 "use client";
 
-import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+
+const PALETTE = ["#dc2626", "#f97316", "#f59e0b", "#7c3aed", "#2563eb", "#0891b2", "#64748b", "#db2777", "#16a34a"];
 
 export default function MotivoBarChart({
   data,
-  color = "#dc2626",
   selected,
   onSelect,
   emptyLabel = "Nenhum registro no período."
 }: {
   data: Record<string, number>;
+  /** @deprecated cor única não é mais usada — a pizza usa uma paleta por fatia. Mantido só pra não quebrar chamadas antigas. */
   color?: string;
   selected?: string | null;
   onSelect?: (motivo: string) => void;
@@ -25,30 +27,31 @@ export default function MotivoBarChart({
   }
 
   return (
-    <ResponsiveContainer width="100%" height={Math.max(180, chartData.length * 36)}>
-      <BarChart data={chartData} layout="vertical" margin={{ top: 8, right: 24, left: 8, bottom: 0 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-        <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: "#64748b" }} axisLine={{ stroke: "#e2e8f0" }} tickLine={false} />
-        <YAxis
-          type="category"
-          dataKey="motivo"
-          width={220}
-          tick={{ fontSize: 11, fill: "#334155" }}
-          axisLine={{ stroke: "#e2e8f0" }}
-          tickLine={false}
-        />
-        <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12 }} />
-        <Bar
+    <ResponsiveContainer width="100%" height={Math.max(220, chartData.length * 18)}>
+      <PieChart>
+        <Pie
+          data={chartData}
           dataKey="total"
-          radius={[0, 4, 4, 0]}
+          nameKey="motivo"
+          cx="50%"
+          cy="50%"
+          innerRadius={50}
+          outerRadius={90}
+          paddingAngle={2}
           cursor={onSelect ? "pointer" : undefined}
           onClick={(d: any) => onSelect && onSelect(d.motivo)}
         >
-          {chartData.map((d) => (
-            <Cell key={d.motivo} fill={selected && selected !== d.motivo ? `${color}55` : color} />
+          {chartData.map((d, i) => (
+            <Cell
+              key={d.motivo}
+              fill={PALETTE[i % PALETTE.length]}
+              fillOpacity={selected && selected !== d.motivo ? 0.35 : 1}
+            />
           ))}
-        </Bar>
-      </BarChart>
+        </Pie>
+        <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12 }} />
+        <Legend wrapperStyle={{ fontSize: 11 }} />
+      </PieChart>
     </ResponsiveContainer>
   );
 }

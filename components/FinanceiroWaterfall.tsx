@@ -1,11 +1,11 @@
-import { TrendingUp, Truck, Percent, Wallet, Minus, Equal } from "lucide-react";
+import { TrendingUp, Truck, Percent, Wallet, Minus, Equal, type LucideIcon } from "lucide-react";
 import { formatBRL } from "@/lib/format";
 
 type Step = {
   label: string;
   value: number;
   tone: "start" | "decrease" | "end";
-  icon: React.ComponentType<{ size?: number; strokeWidth?: number; className?: string }>;
+  icon: LucideIcon;
   hint?: string;
 };
 

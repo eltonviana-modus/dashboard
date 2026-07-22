@@ -19,7 +19,7 @@ export default function DashboardSkeleton({ sections = 2 }: { sections?: number 
           </div>
         </div>
         <nav className="flex-1 space-y-2 px-3 py-4">
-          {Array.from({ length: 3 }).map((_, i) => (
+          {Array.from({ length: 4 }).map((_, i) => (
             <SkeletonBlock key={i} className="h-9 w-full" />
           ))}
         </nav>

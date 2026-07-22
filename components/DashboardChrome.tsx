@@ -11,7 +11,7 @@ export default function DashboardChrome({
   children
 }: {
   token: string;
-  active: "geral" | "vendas" | "operacao";
+  active: "geral" | "vendas" | "operacao" | "financeiro";
   data: DashboardData;
   children: React.ReactNode;
 }) {

@@ -92,6 +92,22 @@ export type DashboardData = {
     ads_resumo: Record<string, number>;
     ads_performance: { item_id: string; sku: string | number; titulo: string; roas: number; acos: number; margem_pct: number; custo_ads: number; classificacao: string }[];
   };
+  financeiro: {
+    faturamento: number;
+    despesa_frete: number;
+    despesa_comissao: number;
+    faturamento_liquido: number;
+    repasses_total: number;
+    serie_repasses: { data: string; pago: number; previsto: number }[];
+    vendas_por_dia_pagamento: Record<string, {
+      numero_pedido: string | number;
+      sku: string | number;
+      produto: string;
+      valor: number;
+      comissao: number;
+      status_liberacao: string | null;
+    }[]>;
+  };
 };
 
 export type RangeKey = "hoje" | "ontem" | "7d" | "mes_atual" | "mes_passado" | "custom";

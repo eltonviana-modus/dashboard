@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { LayoutDashboard, ShoppingCart, Settings2 } from "lucide-react";
+import { LayoutDashboard, ShoppingCart, Settings2, Wallet } from "lucide-react";
 
 const NAV_ITEMS = [
   { href: "geral", label: "Geral", icon: LayoutDashboard },
   { href: "vendas", label: "Vendas", icon: ShoppingCart },
-  { href: "operacao", label: "Operação", icon: Settings2 }
+  { href: "operacao", label: "Operação", icon: Settings2 },
+  { href: "financeiro", label: "Financeiro", icon: Wallet }
 ];
 
 export default function Sidebar({
@@ -13,7 +14,7 @@ export default function Sidebar({
   nickname
 }: {
   token: string;
-  active: "geral" | "vendas" | "operacao";
+  active: "geral" | "vendas" | "operacao" | "financeiro";
   nickname: string;
 }) {
   return (

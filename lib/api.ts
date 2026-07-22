@@ -98,8 +98,17 @@ export type DashboardData = {
     despesa_comissao: number;
     faturamento_liquido: number;
     repasses_total: number;
-    serie_repasses: { data: string; pago: number; previsto: number }[];
-    vendas_por_dia_pagamento: Record<string, {
+    serie_pagos: { data: string; valor: number }[];
+    serie_previstos: { data: string; valor: number }[];
+    vendas_pagos_por_dia: Record<string, {
+      numero_pedido: string | number;
+      sku: string | number;
+      produto: string;
+      valor: number;
+      comissao: number;
+      status_liberacao: string | null;
+    }[]>;
+    vendas_previstos_por_dia: Record<string, {
       numero_pedido: string | number;
       sku: string | number;
       produto: string;

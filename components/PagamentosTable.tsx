@@ -4,9 +4,11 @@ import { formatBRL, formatDateBR } from "@/lib/format";
 import type { DashboardData } from "@/lib/api";
 
 export default function PagamentosTable({
-  vendasPorDiaPagamento
+  vendasPorDiaPagamento,
+  emptyLabel = "Nenhum pagamento no período."
 }: {
-  vendasPorDiaPagamento: DashboardData["financeiro"]["vendas_por_dia_pagamento"];
+  vendasPorDiaPagamento: DashboardData["financeiro"]["vendas_pagos_por_dia"];
+  emptyLabel?: string;
 }) {
   const dias = Object.keys(vendasPorDiaPagamento).sort();
   const flat = dias.flatMap((dia) =>
@@ -52,8 +54,8 @@ export default function PagamentosTable({
     <SimpleTable
       columns={columns}
       rows={rows}
-      emptyLabel="Nenhum pagamento previsto ou recebido no período."
-      maxHeight="24rem"
+      emptyLabel={emptyLabel}
+      maxHeight="20rem"
       exportFilename="pagamentos-mercado-livre"
       exportColumns={columns.map((c) => ({ key: c.key, label: c.label }))}
       exportRows={exportRows}

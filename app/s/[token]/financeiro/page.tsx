@@ -32,19 +32,36 @@ export default async function FinanceiroPage({
       </Section>
 
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <KpiCard label="Repasses recebidos" value={formatBRL(f.repasses_total)} hint="Já pago pelo Mercado Livre" />
+        <KpiCard label="Repasses recebidos" value={formatBRL(f.repasses_total)} hint="Pago pelo Mercado Livre no período selecionado" />
       </div>
 
-      <Section
-        title="Previsão de repasses"
-        description="Valores já pagos e previstos pelo Mercado Livre, por dia de liberação — janela fixa (não segue o filtro de data acima, pois é uma visão de fluxo de caixa futuro)"
-      >
-        <RepassesChart data={f.serie_repasses} />
-      </Section>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Section title="Pagamentos já realizados" description="Repasses recebidos do Mercado Livre, por dia de liberação — segue o filtro de data selecionado acima">
+          <RepassesChart
+            data={f.serie_pagos}
+            color="#16a34a"
+            label="Já pago"
+            emptyMessage="Nenhum pagamento recebido no período selecionado."
+          />
+        </Section>
+        <Section title="Previsão de repasse (próximos 20 dias)" description="Valores ainda a liberar pelo Mercado Livre — janela fixa dos próximos 20 dias, não segue o filtro de data acima">
+          <RepassesChart
+            data={f.serie_previstos}
+            color="#2563eb"
+            label="Previsto"
+            emptyMessage="Nenhuma previsão de pagamento nos próximos 20 dias."
+          />
+        </Section>
+      </div>
 
-      <Section title="Vendas por dia de pagamento" description="Detalhe dos pedidos que compõem cada dia de repasse, já pago ou previsto">
-        <PagamentosTable vendasPorDiaPagamento={f.vendas_por_dia_pagamento} />
-      </Section>
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+        <Section title="Vendas dos pagamentos já realizados" description="Pedidos que compõem os repasses já recebidos, no período selecionado">
+          <PagamentosTable vendasPorDiaPagamento={f.vendas_pagos_por_dia} emptyLabel="Nenhum pagamento recebido no período." />
+        </Section>
+        <Section title="Vendas da previsão de repasse" description="Pedidos que compõem a previsão dos próximos 20 dias">
+          <PagamentosTable vendasPorDiaPagamento={f.vendas_previstos_por_dia} emptyLabel="Nenhuma previsão nos próximos 20 dias." />
+        </Section>
+      </div>
     </DashboardChrome>
   );
 }

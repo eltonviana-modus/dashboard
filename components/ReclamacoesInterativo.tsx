@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import Section from "@/components/Section";
 import SimpleTable from "@/components/SimpleTable";
 import MotivoBarChart from "@/components/MotivoBarChart";
+import Badge from "@/components/Badge";
 
 type ReclamacaoProduto = {
   produto: string;
@@ -12,15 +13,32 @@ type ReclamacaoProduto = {
   motivos: Record<string, number>;
 };
 
+type ReclamacaoAberta = {
+  produto: string;
+  sku?: string | number;
+  numero_pedido: string | number;
+  motivo: string;
+  estagio?: string;
+  status: string;
+};
+
 export default function ReclamacoesInterativo({
   porProduto,
-  porMotivo
+  porMotivo,
+  listaAbertas,
+  tipo = "reclamacao"
 }: {
   porProduto: ReclamacaoProduto[];
   porMotivo: Record<string, number>;
+  listaAbertas: ReclamacaoAberta[];
+  /** Só muda os textos exibidos — a lógica é idêntica pra reclamação e devolução. */
+  tipo?: "reclamacao" | "devolucao";
 }) {
   const [produtoSel, setProdutoSel] = useState<string | null>(null);
   const [motivoSel, setMotivoSel] = useState<string | null>(null);
+
+  const rotulo = tipo === "devolucao" ? "Devolução" : "Reclamação";
+  const rotuloPlural = tipo === "devolucao" ? "devoluções" : "reclamações";
 
   // Top 10 (em vez de 15) pra manter a pizza legível — muitas fatias finas viram ruído visual.
   const topProdutosData = useMemo(() => {
@@ -28,67 +46,73 @@ export default function ReclamacoesInterativo({
     return Object.fromEntries(ordenado.map((p) => [p.produto, p.total]));
   }, [porProduto]);
 
-  const filtrados = porProduto.filter((p) => {
-    if (produtoSel && p.produto !== produtoSel) return false;
-    if (motivoSel && !(p.motivos[motivoSel] > 0)) return false;
+  // A listagem sempre mostra TODAS as ocorrências em aberto (com ou sem mediação), independente
+  // do período selecionado na página — só os gráficos acima respeitam o filtro de data.
+  const filtrados = listaAbertas.filter((r) => {
+    if (produtoSel && r.produto !== produtoSel) return false;
+    if (motivoSel && r.motivo !== motivoSel) return false;
     return true;
   });
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Section title="Reclamação por produto" description="Top 10 · clique numa fatia para filtrar a listagem abaixo">
+        <Section title={`${rotulo} por produto`} description="Top 10 do período · clique numa fatia para filtrar a listagem abaixo">
           <MotivoBarChart
             data={topProdutosData}
             selected={produtoSel}
             onSelect={(produto) => setProdutoSel((cur) => (cur === produto ? null : produto))}
-            emptyLabel="Nenhuma reclamação no período."
+            emptyLabel={`Nenhuma ${rotuloPlural} no período.`}
           />
         </Section>
 
-        <Section title="Reclamação por motivo" description="Clique numa fatia para filtrar a listagem abaixo">
-          <MotivoBarChart data={porMotivo} selected={motivoSel} onSelect={(m) => setMotivoSel((cur) => (cur === m ? null : m))} />
+        <Section title={`${rotulo} por motivo`} description="Do período · clique numa fatia para filtrar a listagem abaixo">
+          <MotivoBarChart
+            data={porMotivo}
+            selected={motivoSel}
+            onSelect={(m) => setMotivoSel((cur) => (cur === m ? null : m))}
+            emptyLabel={`Nenhuma ${rotuloPlural} no período.`}
+          />
         </Section>
       </div>
 
       <Section
-        title="Listagem de reclamações por produto"
-        description={`${filtrados.length} produto(s)${produtoSel ? ` · produto: ${produtoSel}` : ""}${motivoSel ? ` · motivo: ${motivoSel}` : ""}`}
+        title={`Listagem de ${rotuloPlural} em aberto`}
+        description={`${filtrados.length} ${rotuloPlural} em aberto (com ou sem mediação) · independente do período selecionado acima${
+          produtoSel ? ` · produto: ${produtoSel}` : ""
+        }${motivoSel ? ` · motivo: ${motivoSel}` : ""}`}
       >
         <SimpleTable
           key={`${produtoSel ?? "all"}::${motivoSel ?? "all"}`}
-          emptyLabel="Nenhuma reclamação encontrada com esse filtro."
-          exportFilename="reclamacoes_por_produto"
+          emptyLabel={`Nenhuma ${rotuloPlural} em aberto encontrada com esse filtro.`}
+          exportFilename={`${rotuloPlural}_em_aberto`}
           exportColumns={[
             { key: "produto", label: "Produto" },
             { key: "sku", label: "SKU" },
-            { key: "total", label: "Total" },
-            { key: "motivos", label: "Motivos" }
+            { key: "numero_pedido", label: "Nº da venda" },
+            { key: "motivo", label: "Motivo" },
+            { key: "status", label: "Status" }
           ]}
           exportRows={filtrados.map((r) => ({
             produto: r.produto,
             sku: r.sku ?? "",
-            total: r.total,
-            motivos: Object.entries(r.motivos)
-              .sort((a, b) => b[1] - a[1])
-              .map(([m, c]) => `${m} (${c})`)
-              .join(", ")
+            numero_pedido: r.numero_pedido,
+            motivo: r.motivo,
+            status: r.status
           }))}
           columns={[
             { key: "produto", label: "Produto" },
             { key: "sku", label: "SKU" },
-            { key: "total", label: "Total", align: "right" },
-            { key: "motivos", label: "Principais motivos" }
+            { key: "numero_pedido", label: "Nº da venda" },
+            { key: "motivo", label: "Motivo" },
+            { key: "status", label: "Status" }
           ]}
           rows={filtrados.map((r) => ({
             produto: r.produto,
             sku: r.sku ?? "-",
-            total: r.total,
-            motivos: Object.entries(r.motivos)
-              .sort((a, b) => b[1] - a[1])
-              .slice(0, 3)
-              .map(([m, c]) => `${m} (${c})`)
-              .join(", ")
+            numero_pedido: r.numero_pedido,
+            motivo: r.motivo,
+            status: <Badge tone={r.status === "Aberto" ? "warn" : "good"}>{r.status}</Badge>
           }))}
         />
       </Section>

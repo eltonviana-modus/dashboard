@@ -25,6 +25,7 @@ export type DashboardData = {
       tx_reclamacao: number;
       tx_atraso: number;
       reclamacoes_abertas: number;
+      devolucoes_abertas: number;
     };
     relatorio_gerente_geral: string | null;
     relatorio_data: string | null;
@@ -57,7 +58,10 @@ export type DashboardData = {
     trafego_por_item: { item_id: string; visitas: number; pedidos: number; conversao_pct: number }[];
     produtos_60d: Record<string, { item_id: string; sku: string | number; titulo: string; estoque_disponivel: number; giro_60d: number; cobertura_dias: number }[]>;
     produtos_60d_resumo: Record<string, number>;
-    produtos_60d_lista: { item_id: string; sku: string | number; titulo: string; estoque_disponivel: number; giro_60d: number; cobertura_dias: number; categoria: string }[];
+    produtos_60d_lista: {
+      item_id: string; sku: string | number; titulo: string; estoque_disponivel: number; giro_60d: number; cobertura_dias: number; categoria: string;
+      custo_unitario?: number | null; valor_estoque?: number | null;
+    }[];
     produtos_problematicos_lista: {
       item_id: string; sku: string | number; titulo: string; estoque_disponivel: number;
       visitas_7d: number; vendas_7d: number; conversao_pct: number; categoria: string;
@@ -86,9 +90,12 @@ export type DashboardData = {
     produtos_problematicos: Record<string, { item_id: string; sku?: string | number; titulo: string }[]>;
     reclamacoes_por_produto: { produto: string; sku?: string | number; total: number; motivos: Record<string, number> }[];
     reclamacoes_por_motivo: Record<string, number>;
+    reclamacoes_lista_abertas: { produto: string; sku?: string | number; numero_pedido: string | number; motivo: string; estagio: string; status: string }[];
     total_reclamacoes: number;
     total_devolucoes: number;
     devolucoes_por_motivo: Record<string, number>;
+    devolucoes_por_produto: { produto: string; sku?: string | number; total: number; motivos: Record<string, number> }[];
+    devolucoes_lista_abertas: { produto: string; sku?: string | number; numero_pedido: string | number; motivo: string; status: string }[];
     ads_resumo: Record<string, number>;
     ads_performance: { item_id: string; sku: string | number; titulo: string; roas: number; acos: number; margem_pct: number; custo_ads: number; classificacao: string }[];
   };

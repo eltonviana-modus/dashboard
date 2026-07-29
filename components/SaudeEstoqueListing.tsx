@@ -2,7 +2,7 @@
 
 import Badge from "@/components/Badge";
 import TaggedListing from "@/components/TaggedListing";
-import { formatNumber } from "@/lib/format";
+import { formatNumber, formatBRL } from "@/lib/format";
 
 type Produto60d = {
   item_id: string;
@@ -12,6 +12,8 @@ type Produto60d = {
   giro_60d: number;
   cobertura_dias: number;
   categoria: string;
+  custo_unitario?: number | null;
+  valor_estoque?: number | null;
 };
 
 const SAUDE_LABELS: Record<string, { label: string; tone: "good" | "warn" | "bad" | "neutral" }> = {
@@ -48,6 +50,13 @@ export default function SaudeEstoqueListing({ items }: { items: Produto60d[] }) 
           align: "right",
           value: (i) => (i.cobertura_dias >= 999 ? "" : i.cobertura_dias),
           render: (i) => (i.cobertura_dias >= 999 ? "-" : formatNumber(i.cobertura_dias))
+        },
+        {
+          key: "valor_estoque",
+          label: "Valor em estoque",
+          align: "right",
+          value: (i) => i.valor_estoque ?? "",
+          render: (i) => (i.valor_estoque != null ? formatBRL(i.valor_estoque) : "-")
         }
       ]}
     />

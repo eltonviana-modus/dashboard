@@ -111,8 +111,8 @@ export default async function GeralPage({
         <div className="flex items-center gap-3 rounded-lg border border-ink-300/40 bg-surface-1 p-4">
           <Undo2 size={20} className="text-warn" />
           <div>
-            <p className="text-xs text-ink-500">Devoluções no período</p>
-            <p className="text-lg font-semibold text-ink-900">{data.operacao.total_devolucoes}</p>
+            <p className="text-xs text-ink-500">Devoluções em aberto</p>
+            <p className="text-lg font-semibold text-ink-900">{saude.devolucoes_abertas}</p>
           </div>
         </div>
         <div className="flex items-center gap-3 rounded-lg border border-ink-300/40 bg-surface-1 p-4">

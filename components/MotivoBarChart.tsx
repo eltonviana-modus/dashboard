@@ -4,6 +4,27 @@ import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recha
 
 const PALETTE = ["#dc2626", "#f97316", "#f59e0b", "#7c3aed", "#2563eb", "#0891b2", "#64748b", "#db2777", "#16a34a"];
 
+const RADIAN = Math.PI / 180;
+
+// Trunca nomes longos pra não estourar a largura do gráfico com muitas fatias.
+function truncar(nome: string, max = 26) {
+  return nome.length > max ? nome.slice(0, max - 1) + "…" : nome;
+}
+
+// Label externo com linha guia (leader line) apontando pra fatia — melhora a leitura quando
+// há muitas fatias finas (em vez de espremer o texto dentro da pizza).
+function renderLabelExterno(props: any) {
+  const { cx, cy, midAngle, outerRadius, name } = props;
+  const radius = outerRadius + 14;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  return (
+    <text x={x} y={y} fill="#475569" textAnchor={x > cx ? "start" : "end"} dominantBaseline="central" fontSize={11}>
+      {truncar(String(name))}
+    </text>
+  );
+}
+
 export default function MotivoBarChart({
   data,
   selected,
@@ -27,8 +48,8 @@ export default function MotivoBarChart({
   }
 
   return (
-    <ResponsiveContainer width="100%" height={Math.max(220, chartData.length * 18)}>
-      <PieChart>
+    <ResponsiveContainer width="100%" height={Math.max(280, chartData.length * 22)}>
+      <PieChart margin={{ top: 20, right: 80, bottom: 20, left: 80 }}>
         <Pie
           data={chartData}
           dataKey="total"
@@ -40,6 +61,8 @@ export default function MotivoBarChart({
           paddingAngle={2}
           cursor={onSelect ? "pointer" : undefined}
           onClick={(d: any) => onSelect && onSelect(d.motivo)}
+          label={renderLabelExterno}
+          labelLine={{ stroke: "#94a3b8", strokeWidth: 1 }}
         >
           {chartData.map((d, i) => (
             <Cell

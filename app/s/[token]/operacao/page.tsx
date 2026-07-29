@@ -71,7 +71,19 @@ export default async function OperacaoPage({
         <AcoesIaListing items={acoesFlat} />
       </Section>
 
-      <ReclamacoesInterativo porProduto={o.reclamacoes_por_produto} porMotivo={o.reclamacoes_por_motivo} />
+      <ReclamacoesInterativo
+        porProduto={o.reclamacoes_por_produto}
+        porMotivo={o.reclamacoes_por_motivo}
+        listaAbertas={o.reclamacoes_lista_abertas}
+        tipo="reclamacao"
+      />
+
+      <ReclamacoesInterativo
+        porProduto={o.devolucoes_por_produto}
+        porMotivo={o.devolucoes_por_motivo}
+        listaAbertas={o.devolucoes_lista_abertas.map((d) => ({ ...d, estagio: "" }))}
+        tipo="devolucao"
+      />
 
       <Section title="Detalhe de Ads" description="Campanhas com custo no período">
         <SimpleTable

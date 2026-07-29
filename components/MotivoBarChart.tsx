@@ -1,6 +1,6 @@
 "use client";
 
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from "recharts";
+import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from "recharts";
 
 const PALETTE = ["#dc2626", "#f97316", "#f59e0b", "#7c3aed", "#2563eb", "#0891b2", "#64748b", "#db2777", "#16a34a"];
 
@@ -73,7 +73,6 @@ export default function MotivoBarChart({
           ))}
         </Pie>
         <Tooltip contentStyle={{ borderRadius: 8, border: "1px solid #e2e8f0", fontSize: 12 }} />
-        <Legend wrapperStyle={{ fontSize: 11 }} />
       </PieChart>
     </ResponsiveContainer>
   );

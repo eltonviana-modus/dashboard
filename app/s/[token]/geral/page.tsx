@@ -101,12 +101,19 @@ export default async function GeralPage({
       </div>
 
       {/*
-        Reclamações / Devoluções / Mediações em aberto — cada bloco tem gráfico (produto + motivo)
-        e, abaixo, a listagem consultiva com nº da venda, motivo, status, prazo de resposta e
-        turno (quem precisa agir agora: Vendedor, Cliente, Mercado Livre ou Transporte). Pensado
-        pro seller usar essa tela pra saber exatamente o que responder e pegar o nº do pedido pra
-        ir agir no Mercado Livre. Ver memória "ml-claims-api-mapeamento-status-2026-07-30" pra
-        origem dos campos turno_resposta/prazo_resposta.
+        Reclamações / Mediações em aberto — cada bloco tem gráfico (produto + motivo) e, abaixo,
+        a listagem consultiva com nº da venda, motivo, status, prazo de resposta e turno (quem
+        precisa agir agora: Vendedor, Cliente, Mercado Livre ou Transporte). Pensado pro seller
+        usar essa tela pra saber exatamente o que responder e pegar o nº do pedido pra ir agir no
+        Mercado Livre. Ver memória "ml-claims-api-mapeamento-status-2026-07-30" pra origem dos
+        campos turno_resposta/prazo_resposta.
+
+        Reclamações e devoluções NÃO são categorias separadas — reclamação é o nível 1 (produto +
+        motivo), devolução é um resultado possível dela (nem toda reclamação vira devolução, mas
+        toda devolução passa por uma reclamação). Por isso ficam numa lista só: separar as duas
+        duplicava o mesmo pedido nos dois blocos (reclamacoes_lista_abertas já inclui as
+        devoluções em aberto — ver estagio/status de cada item pra saber se é uma devolução em
+        trânsito/conferência). Ajuste pedido pelo Elton em 2026-07-30.
       */}
       <Section title={`Reclamações em aberto (${saude.reclamacoes_abertas})`}>
         <ReclamacoesInterativo
@@ -114,15 +121,6 @@ export default async function GeralPage({
           porMotivo={data.operacao.reclamacoes_por_motivo}
           listaAbertas={data.operacao.reclamacoes_lista_abertas}
           tipo="reclamacao"
-        />
-      </Section>
-
-      <Section title={`Devoluções em aberto (${saude.devolucoes_abertas})`}>
-        <ReclamacoesInterativo
-          porProduto={data.operacao.devolucoes_por_produto}
-          porMotivo={data.operacao.devolucoes_por_motivo}
-          listaAbertas={data.operacao.devolucoes_lista_abertas}
-          tipo="devolucao"
         />
       </Section>
 

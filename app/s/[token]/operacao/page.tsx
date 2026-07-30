@@ -71,18 +71,17 @@ export default async function OperacaoPage({
         <AcoesIaListing items={acoesFlat} />
       </Section>
 
+      {/*
+        Reclamações e devoluções compartilham 1 lista só — reclamação é nível 1 (produto/motivo),
+        devolução é um possível resultado dela, então separar duplicava o mesmo pedido nos dois
+        blocos. reclamacoes_lista_abertas já inclui as devoluções em aberto (ver estagio/status
+        de cada item). Ajuste pedido pelo Elton em 2026-07-30.
+      */}
       <ReclamacoesInterativo
         porProduto={o.reclamacoes_por_produto}
         porMotivo={o.reclamacoes_por_motivo}
         listaAbertas={o.reclamacoes_lista_abertas}
         tipo="reclamacao"
-      />
-
-      <ReclamacoesInterativo
-        porProduto={o.devolucoes_por_produto}
-        porMotivo={o.devolucoes_por_motivo}
-        listaAbertas={o.devolucoes_lista_abertas}
-        tipo="devolucao"
       />
 
       <ReclamacoesInterativo

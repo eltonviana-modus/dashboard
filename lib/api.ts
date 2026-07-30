@@ -1,3 +1,19 @@
+// Linha de listagem consultiva de reclamação/devolução/mediação: número da venda, motivo,
+// status, prazo de resposta (due_date da ação pendente na claim ML) e turno (quem precisa
+// responder agora — "Vendedor" | "Cliente" | "Mercado Livre" | "Transporte" — ou null quando
+// ninguém tem ação pendente, ex. devolução em trânsito). Ver WF02 "Buscar Detalhe da
+// Reclamacao (Webhook)" para a origem desses dois campos.
+export type ReclamacaoListaItem = {
+  produto: string;
+  sku?: string | number;
+  numero_pedido: string | number;
+  motivo: string;
+  estagio: string;
+  status: string;
+  prazo_resposta: string | null;
+  turno_resposta: string | null;
+};
+
 export type DashboardData = {
   seller: { nickname: string; seller_id: number | string };
   periodo: {
@@ -90,12 +106,16 @@ export type DashboardData = {
     produtos_problematicos: Record<string, { item_id: string; sku?: string | number; titulo: string }[]>;
     reclamacoes_por_produto: { produto: string; sku?: string | number; total: number; motivos: Record<string, number> }[];
     reclamacoes_por_motivo: Record<string, number>;
-    reclamacoes_lista_abertas: { produto: string; sku?: string | number; numero_pedido: string | number; motivo: string; estagio: string; status: string }[];
+    reclamacoes_lista_abertas: ReclamacaoListaItem[];
     total_reclamacoes: number;
     total_devolucoes: number;
     devolucoes_por_motivo: Record<string, number>;
     devolucoes_por_produto: { produto: string; sku?: string | number; total: number; motivos: Record<string, number> }[];
-    devolucoes_lista_abertas: { produto: string; sku?: string | number; numero_pedido: string | number; motivo: string; status: string }[];
+    devolucoes_lista_abertas: ReclamacaoListaItem[];
+    total_mediacoes: number;
+    mediacoes_por_motivo: Record<string, number>;
+    mediacoes_por_produto: { produto: string; sku?: string | number; total: number; motivos: Record<string, number> }[];
+    mediacoes_lista_abertas: ReclamacaoListaItem[];
     ads_resumo: Record<string, number>;
     ads_performance: { item_id: string; sku: string | number; titulo: string; roas: number; acos: number; margem_pct: number; custo_ads: number; classificacao: string }[];
   };

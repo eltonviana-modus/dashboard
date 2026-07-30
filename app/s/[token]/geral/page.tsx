@@ -6,8 +6,8 @@ import Section from "@/components/Section";
 import Badge from "@/components/Badge";
 import StatusPieChart from "@/components/StatusPieChart";
 import ReputacaoTermometro from "@/components/ReputacaoTermometro";
-import MotivoBarChart from "@/components/MotivoBarChart";
-import { Award, XCircle, Clock3, MessageSquareWarning, Undo2, ShieldAlert } from "lucide-react";
+import ReclamacoesInterativo from "@/components/ReclamacoesInterativo";
+import { Award, XCircle, Clock3, ShieldAlert } from "lucide-react";
 import { formatBRL, formatNumber, formatPct, formatDateBR } from "@/lib/format";
 
 const ESTOQUE_LABELS: Record<string, string> = {
@@ -100,32 +100,39 @@ export default async function GeralPage({
         </Section>
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="flex items-center gap-3 rounded-lg border border-ink-300/40 bg-surface-1 p-4">
-          <MessageSquareWarning size={20} className="text-bad" />
-          <div>
-            <p className="text-xs text-ink-500">Reclamações em aberto</p>
-            <p className="text-lg font-semibold text-ink-900">{saude.reclamacoes_abertas}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 rounded-lg border border-ink-300/40 bg-surface-1 p-4">
-          <Undo2 size={20} className="text-warn" />
-          <div>
-            <p className="text-xs text-ink-500">Devoluções em aberto</p>
-            <p className="text-lg font-semibold text-ink-900">{saude.devolucoes_abertas}</p>
-          </div>
-        </div>
-        <div className="flex items-center gap-3 rounded-lg border border-ink-300/40 bg-surface-1 p-4">
-          <ShieldAlert size={20} className="text-ink-500" />
-          <div>
-            <p className="text-xs text-ink-500">Mediações abertas</p>
-            <p className="text-lg font-semibold text-ink-900">{saude.mediacoes_abertas}</p>
-          </div>
-        </div>
-      </div>
+      {/*
+        Reclamações / Devoluções / Mediações em aberto — cada bloco tem gráfico (produto + motivo)
+        e, abaixo, a listagem consultiva com nº da venda, motivo, status, prazo de resposta e
+        turno (quem precisa agir agora: Vendedor, Cliente, Mercado Livre ou Transporte). Pensado
+        pro seller usar essa tela pra saber exatamente o que responder e pegar o nº do pedido pra
+        ir agir no Mercado Livre. Ver memória "ml-claims-api-mapeamento-status-2026-07-30" pra
+        origem dos campos turno_resposta/prazo_resposta.
+      */}
+      <Section title={`Reclamações em aberto (${saude.reclamacoes_abertas})`}>
+        <ReclamacoesInterativo
+          porProduto={data.operacao.reclamacoes_por_produto}
+          porMotivo={data.operacao.reclamacoes_por_motivo}
+          listaAbertas={data.operacao.reclamacoes_lista_abertas}
+          tipo="reclamacao"
+        />
+      </Section>
 
-      <Section title="Devoluções por motivo" description="Distribuição dos motivos de devolução no período">
-        <MotivoBarChart data={data.operacao.devolucoes_por_motivo} emptyLabel="Nenhuma devolução no período." />
+      <Section title={`Devoluções em aberto (${saude.devolucoes_abertas})`}>
+        <ReclamacoesInterativo
+          porProduto={data.operacao.devolucoes_por_produto}
+          porMotivo={data.operacao.devolucoes_por_motivo}
+          listaAbertas={data.operacao.devolucoes_lista_abertas}
+          tipo="devolucao"
+        />
+      </Section>
+
+      <Section title={`Mediações em aberto (${saude.mediacoes_abertas})`}>
+        <ReclamacoesInterativo
+          porProduto={data.operacao.mediacoes_por_produto}
+          porMotivo={data.operacao.mediacoes_por_motivo}
+          listaAbertas={data.operacao.mediacoes_lista_abertas}
+          tipo="mediacao"
+        />
       </Section>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">

@@ -81,8 +81,15 @@ export default async function OperacaoPage({
       <ReclamacoesInterativo
         porProduto={o.devolucoes_por_produto}
         porMotivo={o.devolucoes_por_motivo}
-        listaAbertas={o.devolucoes_lista_abertas.map((d) => ({ ...d, estagio: "" }))}
+        listaAbertas={o.devolucoes_lista_abertas}
         tipo="devolucao"
+      />
+
+      <ReclamacoesInterativo
+        porProduto={o.mediacoes_por_produto}
+        porMotivo={o.mediacoes_por_motivo}
+        listaAbertas={o.mediacoes_lista_abertas}
+        tipo="mediacao"
       />
 
       <Section title="Detalhe de Ads" description="Campanhas com custo no período">

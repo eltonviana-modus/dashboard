@@ -5,6 +5,7 @@ import Section from "@/components/Section";
 import SimpleTable from "@/components/SimpleTable";
 import MotivoBarChart from "@/components/MotivoBarChart";
 import Badge from "@/components/Badge";
+import { formatDateBR } from "@/lib/format";
 
 type ReclamacaoProduto = {
   produto: string;
@@ -20,7 +21,15 @@ type ReclamacaoAberta = {
   motivo: string;
   estagio?: string;
   status: string;
+  prazo_resposta?: string | null;
+  turno_resposta?: string | null;
 };
+
+// Cor do badge de turno: "Vendedor" é quem o seller precisa agir agora (chama atenção), o
+// resto é informativo. Sem turno (null) = ninguém tem ação pendente (ex. devolução em trânsito).
+function tonePorTurno(turno: string | null | undefined): "warn" | "neutral" {
+  return turno === "Vendedor" ? "warn" : "neutral";
+}
 
 export default function ReclamacoesInterativo({
   porProduto,
@@ -31,14 +40,14 @@ export default function ReclamacoesInterativo({
   porProduto: ReclamacaoProduto[];
   porMotivo: Record<string, number>;
   listaAbertas: ReclamacaoAberta[];
-  /** Só muda os textos exibidos — a lógica é idêntica pra reclamação e devolução. */
-  tipo?: "reclamacao" | "devolucao";
+  /** Só muda os textos exibidos — a lógica é idêntica pra reclamação, devolução e mediação. */
+  tipo?: "reclamacao" | "devolucao" | "mediacao";
 }) {
   const [produtoSel, setProdutoSel] = useState<string | null>(null);
   const [motivoSel, setMotivoSel] = useState<string | null>(null);
 
-  const rotulo = tipo === "devolucao" ? "Devolução" : "Reclamação";
-  const rotuloPlural = tipo === "devolucao" ? "devoluções" : "reclamações";
+  const rotulo = tipo === "devolucao" ? "Devolução" : tipo === "mediacao" ? "Mediação" : "Reclamação";
+  const rotuloPlural = tipo === "devolucao" ? "devoluções" : tipo === "mediacao" ? "mediações" : "reclamações";
 
   // Top 10 (em vez de 15) pra manter a pizza legível — muitas fatias finas viram ruído visual.
   const topProdutosData = useMemo(() => {
@@ -78,7 +87,7 @@ export default function ReclamacoesInterativo({
 
       <Section
         title={`Listagem de ${rotuloPlural} em aberto`}
-        description={`${filtrados.length} ${rotuloPlural} em aberto (com ou sem mediação) · independente do período selecionado acima${
+        description={`${filtrados.length} ${rotuloPlural} em aberto · independente do período selecionado acima${
           produtoSel ? ` · produto: ${produtoSel}` : ""
         }${motivoSel ? ` · motivo: ${motivoSel}` : ""}`}
       >
@@ -91,28 +100,43 @@ export default function ReclamacoesInterativo({
             { key: "sku", label: "SKU" },
             { key: "numero_pedido", label: "Nº da venda" },
             { key: "motivo", label: "Motivo" },
-            { key: "status", label: "Status" }
+            { key: "status", label: "Status" },
+            { key: "prazo_resposta", label: "Prazo de resposta" },
+            { key: "turno_resposta", label: "Turno" }
           ]}
           exportRows={filtrados.map((r) => ({
             produto: r.produto,
             sku: r.sku ?? "",
             numero_pedido: r.numero_pedido,
             motivo: r.motivo,
-            status: r.status
+            status: r.status,
+            prazo_resposta: r.prazo_resposta ?? "",
+            turno_resposta: r.turno_resposta ?? ""
           }))}
           columns={[
             { key: "produto", label: "Produto" },
             { key: "sku", label: "SKU" },
             { key: "numero_pedido", label: "Nº da venda" },
             { key: "motivo", label: "Motivo" },
-            { key: "status", label: "Status" }
+            { key: "status", label: "Status" },
+            { key: "prazo_resposta", label: "Prazo de resposta" },
+            { key: "turno_resposta", label: "Turno" }
           ]}
           rows={filtrados.map((r) => ({
             produto: r.produto,
             sku: r.sku ?? "-",
             numero_pedido: r.numero_pedido,
             motivo: r.motivo,
-            status: <Badge tone={r.status === "Aberto" ? "warn" : "good"}>{r.status}</Badge>
+            // Esta listagem só traz itens em aberto (statusFechado filtrado no backend), então
+            // o tone é sempre "warn" — o texto do badge (status amigável por estágio) já
+            // carrega o detalhe de qual fase está em aberto.
+            status: <Badge tone="warn">{r.status}</Badge>,
+            prazo_resposta: r.prazo_resposta ? formatDateBR(r.prazo_resposta) : "-",
+            turno_resposta: r.turno_resposta ? (
+              <Badge tone={tonePorTurno(r.turno_resposta)}>{r.turno_resposta}</Badge>
+            ) : (
+              "-"
+            )
           }))}
         />
       </Section>

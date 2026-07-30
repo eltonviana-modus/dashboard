@@ -7,6 +7,10 @@ export type ReclamacaoListaItem = {
   produto: string;
   sku?: string | number;
   numero_pedido: string | number;
+  /** "Reclamação" ou "Devolução" — devolução é um resultado possível da reclamação, calculado
+   * a partir de eh_devolucao. Ver ReclamacoesDevolucoesInterativo (lista única, sem duplicar
+   * a venda quando ela transiciona de reclamação pra devolução). */
+  tipo: string;
   motivo: string;
   estagio: string;
   status: string;

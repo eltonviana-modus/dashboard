@@ -7,6 +7,7 @@ import Badge from "@/components/Badge";
 import StatusPieChart from "@/components/StatusPieChart";
 import ReputacaoTermometro from "@/components/ReputacaoTermometro";
 import ReclamacoesInterativo from "@/components/ReclamacoesInterativo";
+import ReclamacoesDevolucoesInterativo from "@/components/ReclamacoesDevolucoesInterativo";
 import { Award, XCircle, Clock3, ShieldAlert } from "lucide-react";
 import { formatBRL, formatNumber, formatPct, formatDateBR } from "@/lib/format";
 
@@ -101,26 +102,22 @@ export default async function GeralPage({
       </div>
 
       {/*
-        Reclamações / Mediações em aberto — cada bloco tem gráfico (produto + motivo) e, abaixo,
-        a listagem consultiva com nº da venda, motivo, status, prazo de resposta e turno (quem
-        precisa agir agora: Vendedor, Cliente, Mercado Livre ou Transporte). Pensado pro seller
-        usar essa tela pra saber exatamente o que responder e pegar o nº do pedido pra ir agir no
-        Mercado Livre. Ver memória "ml-claims-api-mapeamento-status-2026-07-30" pra origem dos
-        campos turno_resposta/prazo_resposta.
-
-        Reclamações e devoluções NÃO são categorias separadas — reclamação é o nível 1 (produto +
-        motivo), devolução é um resultado possível dela (nem toda reclamação vira devolução, mas
-        toda devolução passa por uma reclamação). Por isso ficam numa lista só: separar as duas
-        duplicava o mesmo pedido nos dois blocos (reclamacoes_lista_abertas já inclui as
-        devoluções em aberto — ver estagio/status de cada item pra saber se é uma devolução em
-        trânsito/conferência). Ajuste pedido pelo Elton em 2026-07-30.
+        Reclamação e devolução têm gráficos separados (produto + motivo de cada uma), mas UMA SÓ
+        listagem embaixo (coluna "Tipo" distingue) — devolução é um resultado possível da
+        reclamação, não categoria irmã, então listar em 2 blocos duplicava a mesma venda. Ver
+        ReclamacoesDevolucoesInterativo. Mediação continua em bloco separado (é ortogonal: uma
+        devolução também pode estar em mediação ao mesmo tempo). Pensado pro seller usar essa
+        tela pra saber exatamente o que responder e pegar o nº do pedido pra ir agir no Mercado
+        Livre. Ver memória "ml-claims-api-mapeamento-status-2026-07-30" pra origem dos campos
+        turno_resposta/prazo_resposta. Ajuste pedido pelo Elton em 2026-07-30.
       */}
-      <Section title={`Reclamações em aberto (${saude.reclamacoes_abertas})`}>
-        <ReclamacoesInterativo
-          porProduto={data.operacao.reclamacoes_por_produto}
-          porMotivo={data.operacao.reclamacoes_por_motivo}
+      <Section title={`Reclamações e devoluções em aberto (${saude.reclamacoes_abertas})`}>
+        <ReclamacoesDevolucoesInterativo
+          reclamacaoPorProduto={data.operacao.reclamacoes_por_produto}
+          reclamacaoPorMotivo={data.operacao.reclamacoes_por_motivo}
+          devolucaoPorProduto={data.operacao.devolucoes_por_produto}
+          devolucaoPorMotivo={data.operacao.devolucoes_por_motivo}
           listaAbertas={data.operacao.reclamacoes_lista_abertas}
-          tipo="reclamacao"
         />
       </Section>
 

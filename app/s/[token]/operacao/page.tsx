@@ -8,6 +8,7 @@ import AnunciosListing from "@/components/AnunciosListing";
 import SaudeEstoqueListing from "@/components/SaudeEstoqueListing";
 import AcoesIaListing from "@/components/AcoesIaListing";
 import ReclamacoesInterativo from "@/components/ReclamacoesInterativo";
+import ReclamacoesDevolucoesInterativo from "@/components/ReclamacoesDevolucoesInterativo";
 import StatusPieChart from "@/components/StatusPieChart";
 import { formatBRL } from "@/lib/format";
 
@@ -72,16 +73,18 @@ export default async function OperacaoPage({
       </Section>
 
       {/*
-        Reclamações e devoluções compartilham 1 lista só — reclamação é nível 1 (produto/motivo),
-        devolução é um possível resultado dela, então separar duplicava o mesmo pedido nos dois
-        blocos. reclamacoes_lista_abertas já inclui as devoluções em aberto (ver estagio/status
-        de cada item). Ajuste pedido pelo Elton em 2026-07-30.
+        Reclamação e devolução têm gráficos separados (produto + motivo de cada uma), mas UMA SÓ
+        listagem embaixo (coluna "Tipo" distingue) — devolução é um resultado possível da
+        reclamação, não categoria irmã, então listar em 2 blocos duplicava a mesma venda. Ver
+        ReclamacoesDevolucoesInterativo. Mediação continua em bloco separado (é ortogonal).
+        Ajuste pedido pelo Elton em 2026-07-30.
       */}
-      <ReclamacoesInterativo
-        porProduto={o.reclamacoes_por_produto}
-        porMotivo={o.reclamacoes_por_motivo}
+      <ReclamacoesDevolucoesInterativo
+        reclamacaoPorProduto={o.reclamacoes_por_produto}
+        reclamacaoPorMotivo={o.reclamacoes_por_motivo}
+        devolucaoPorProduto={o.devolucoes_por_produto}
+        devolucaoPorMotivo={o.devolucoes_por_motivo}
         listaAbertas={o.reclamacoes_lista_abertas}
-        tipo="reclamacao"
       />
 
       <ReclamacoesInterativo

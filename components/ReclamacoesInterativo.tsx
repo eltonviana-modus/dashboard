@@ -5,7 +5,7 @@ import Section from "@/components/Section";
 import SimpleTable from "@/components/SimpleTable";
 import MotivoBarChart from "@/components/MotivoBarChart";
 import Badge from "@/components/Badge";
-import { formatDateBR } from "@/lib/format";
+import { formatDateBR, formatPrazoBR } from "@/lib/format";
 
 type ReclamacaoProduto = {
   produto: string;
@@ -131,7 +131,7 @@ export default function ReclamacoesInterativo({
             // o tone é sempre "warn" — o texto do badge (status amigável por estágio) já
             // carrega o detalhe de qual fase está em aberto.
             status: <Badge tone="warn">{r.status}</Badge>,
-            prazo_resposta: r.prazo_resposta ? formatDateBR(r.prazo_resposta) : "-",
+            prazo_resposta: r.prazo_resposta ? formatPrazoBR(r.prazo_resposta) : "-",
             turno_resposta: r.turno_resposta ? (
               <Badge tone={tonePorTurno(r.turno_resposta)}>{r.turno_resposta}</Badge>
             ) : (

@@ -20,6 +20,10 @@ export type ReclamacaoListaItem = {
   aberto: boolean;
   prazo_resposta: string | null;
   turno_resposta: string | null;
+  /** Texto explicando qual foi a resolução final aplicada ao caso pelo Mercado Livre (só
+   * preenchido quando a claim está fechada — ver RESOLUCAO_AMIGAVEL no WF02 "Buscar Detalhe da
+   * Reclamacao (Webhook)"). Pedido do Elton em 2026-07-31. */
+  resolucao: string | null;
 };
 
 export type DashboardData = {

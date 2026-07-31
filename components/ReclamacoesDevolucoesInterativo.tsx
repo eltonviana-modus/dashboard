@@ -5,6 +5,7 @@ import Section from "@/components/Section";
 import SimpleTable from "@/components/SimpleTable";
 import MotivoBarChart from "@/components/MotivoBarChart";
 import Badge from "@/components/Badge";
+import TruncateTooltip from "@/components/TruncateTooltip";
 import { formatPrazoBR } from "@/lib/format";
 import type { ReclamacaoListaItem } from "@/lib/api";
 
@@ -145,7 +146,8 @@ export default function ReclamacoesDevolucoesInterativo({
             { key: "motivo", label: "Motivo" },
             { key: "status", label: "Status" },
             { key: "prazo_resposta", label: "Prazo de resposta" },
-            { key: "turno_resposta", label: "Turno" }
+            { key: "turno_resposta", label: "Turno" },
+            { key: "resolucao", label: "Resolução" }
           ]}
           exportRows={filtrados.map((r) => ({
             produto: r.produto,
@@ -155,7 +157,8 @@ export default function ReclamacoesDevolucoesInterativo({
             motivo: r.motivo,
             status: r.status,
             prazo_resposta: r.prazo_resposta ?? "",
-            turno_resposta: r.turno_resposta ?? ""
+            turno_resposta: r.turno_resposta ?? "",
+            resolucao: r.resolucao ?? ""
           }))}
           columns={[
             { key: "produto", label: "Produto" },
@@ -165,7 +168,8 @@ export default function ReclamacoesDevolucoesInterativo({
             { key: "motivo", label: "Motivo" },
             { key: "status", label: "Status" },
             { key: "prazo_resposta", label: "Prazo de resposta" },
-            { key: "turno_resposta", label: "Turno" }
+            { key: "turno_resposta", label: "Turno" },
+            { key: "resolucao", label: "Resolução" }
           ]}
           rows={filtrados.map((r) => ({
             produto: r.produto,
@@ -182,7 +186,11 @@ export default function ReclamacoesDevolucoesInterativo({
               <Badge tone={tonePorTurno(r.turno_resposta)}>{r.turno_resposta}</Badge>
             ) : (
               "-"
-            )
+            ),
+            // Texto da resolução final costuma ser longo -- trunca e mostra tudo num tooltip ao
+            // passar o mouse, em vez de cortar sem dar acesso ao restante. Pedido do Elton em
+            // 2026-07-31.
+            resolucao: <TruncateTooltip text={r.resolucao} />
           }))}
         />
       </Section>

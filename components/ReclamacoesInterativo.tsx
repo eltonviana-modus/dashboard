@@ -5,6 +5,7 @@ import Section from "@/components/Section";
 import SimpleTable from "@/components/SimpleTable";
 import MotivoBarChart from "@/components/MotivoBarChart";
 import Badge from "@/components/Badge";
+import TruncateTooltip from "@/components/TruncateTooltip";
 import { formatPrazoBR } from "@/lib/format";
 
 type ReclamacaoProduto = {
@@ -25,6 +26,8 @@ type ReclamacaoAberta = {
   aberto: boolean;
   prazo_resposta?: string | null;
   turno_resposta?: string | null;
+  /** Texto explicando a resolução final aplicada pelo ML (só preenchido quando fechada). */
+  resolucao?: string | null;
 };
 
 // Cor do badge de turno: "Vendedor" é quem o seller precisa agir agora (chama atenção), o
@@ -117,7 +120,8 @@ export default function ReclamacoesInterativo({
             { key: "motivo", label: "Motivo" },
             { key: "status", label: "Status" },
             { key: "prazo_resposta", label: "Prazo de resposta" },
-            { key: "turno_resposta", label: "Turno" }
+            { key: "turno_resposta", label: "Turno" },
+            { key: "resolucao", label: "Resolução" }
           ]}
           exportRows={filtrados.map((r) => ({
             produto: r.produto,
@@ -126,7 +130,8 @@ export default function ReclamacoesInterativo({
             motivo: r.motivo,
             status: r.status,
             prazo_resposta: r.prazo_resposta ?? "",
-            turno_resposta: r.turno_resposta ?? ""
+            turno_resposta: r.turno_resposta ?? "",
+            resolucao: r.resolucao ?? ""
           }))}
           columns={[
             { key: "produto", label: "Produto" },
@@ -135,7 +140,8 @@ export default function ReclamacoesInterativo({
             { key: "motivo", label: "Motivo" },
             { key: "status", label: "Status" },
             { key: "prazo_resposta", label: "Prazo de resposta" },
-            { key: "turno_resposta", label: "Turno" }
+            { key: "turno_resposta", label: "Turno" },
+            { key: "resolucao", label: "Resolução" }
           ]}
           rows={filtrados.map((r) => ({
             produto: r.produto,
@@ -151,7 +157,10 @@ export default function ReclamacoesInterativo({
               <Badge tone={tonePorTurno(r.turno_resposta)}>{r.turno_resposta}</Badge>
             ) : (
               "-"
-            )
+            ),
+            // Texto da resolução final costuma ser longo -- trunca e mostra tudo num tooltip ao
+            // passar o mouse. Pedido do Elton em 2026-07-31.
+            resolucao: <TruncateTooltip text={r.resolucao} />
           }))}
         />
       </Section>

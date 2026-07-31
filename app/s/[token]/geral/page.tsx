@@ -110,23 +110,29 @@ export default async function GeralPage({
         tela pra saber exatamente o que responder e pegar o nº do pedido pra ir agir no Mercado
         Livre. Ver memória "ml-claims-api-mapeamento-status-2026-07-30" pra origem dos campos
         turno_resposta/prazo_resposta. Ajuste pedido pelo Elton em 2026-07-30.
+
+        Aba Geral = fixa, só casos em aberto, sem interação com o filtro de data (usa data.geral.*,
+        modo="geral") — ao contrário da aba Operação, que é histórico e dinâmico por período.
+        Pedido do Elton em 2026-07-31.
       */}
       <Section title={`Reclamações e devoluções em aberto (${saude.reclamacoes_abertas})`}>
         <ReclamacoesDevolucoesInterativo
-          reclamacaoPorProduto={data.operacao.reclamacoes_por_produto}
-          reclamacaoPorMotivo={data.operacao.reclamacoes_por_motivo}
-          devolucaoPorProduto={data.operacao.devolucoes_por_produto}
-          devolucaoPorMotivo={data.operacao.devolucoes_por_motivo}
-          listaAbertas={data.operacao.reclamacoes_lista_abertas}
+          reclamacaoPorProduto={data.geral.reclamacoes_por_produto}
+          reclamacaoPorMotivo={data.geral.reclamacoes_por_motivo}
+          devolucaoPorProduto={data.geral.devolucoes_por_produto}
+          devolucaoPorMotivo={data.geral.devolucoes_por_motivo}
+          lista={data.geral.reclamacoes_lista_abertas}
+          modo="geral"
         />
       </Section>
 
       <Section title={`Mediações em aberto (${saude.mediacoes_abertas})`}>
         <ReclamacoesInterativo
-          porProduto={data.operacao.mediacoes_por_produto}
-          porMotivo={data.operacao.mediacoes_por_motivo}
-          listaAbertas={data.operacao.mediacoes_lista_abertas}
+          porProduto={data.geral.mediacoes_por_produto}
+          porMotivo={data.geral.mediacoes_por_motivo}
+          lista={data.geral.mediacoes_lista_abertas}
           tipo="mediacao"
+          modo="geral"
         />
       </Section>
 

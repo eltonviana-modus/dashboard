@@ -14,6 +14,10 @@ export type ReclamacaoListaItem = {
   motivo: string;
   estagio: string;
   status: string;
+  /** false quando estagio_reclamacao chega a "pos-resolucao" (ver statusFechado no backend).
+   * A aba Operação mostra histórico (aberto + fechado) e usa esse campo pra colorir o badge de
+   * status dinamicamente; a aba Geral só traz itens com aberto=true. */
+  aberto: boolean;
   prazo_resposta: string | null;
   turno_resposta: string | null;
 };
@@ -61,6 +65,17 @@ export type DashboardData = {
       perguntas_respondidas_total?: number;
       perguntas_recebidas_periodo?: number;
     };
+    /** Fixo: só casos em aberto, sem filtro de período (ao contrário dos campos equivalentes em
+     * `operacao`, que são histórico e dinâmicos por data). Pedido do Elton em 2026-07-31. */
+    reclamacoes_por_produto: { produto: string; sku?: string | number; total: number; motivos: Record<string, number> }[];
+    reclamacoes_por_motivo: Record<string, number>;
+    reclamacoes_lista_abertas: ReclamacaoListaItem[];
+    devolucoes_por_produto: { produto: string; sku?: string | number; total: number; motivos: Record<string, number> }[];
+    devolucoes_por_motivo: Record<string, number>;
+    devolucoes_lista_abertas: ReclamacaoListaItem[];
+    mediacoes_por_produto: { produto: string; sku?: string | number; total: number; motivos: Record<string, number> }[];
+    mediacoes_por_motivo: Record<string, number>;
+    mediacoes_lista_abertas: ReclamacaoListaItem[];
   };
   vendas: {
     serie_faturamento_diario: { data: string; faturamento: number }[];
@@ -108,18 +123,21 @@ export type DashboardData = {
       acao_recomendada: string; responsavel: string; impacto_estimado: string; data_criacao: string;
     }[]>;
     produtos_problematicos: Record<string, { item_id: string; sku?: string | number; titulo: string }[]>;
+    /** Histórico (aberto + fechado), dinâmico conforme o filtro de data selecionado. Ao contrário
+     * dos campos equivalentes em `geral`, que são fixos e só trazem casos em aberto. Pedido do
+     * Elton em 2026-07-31. */
     reclamacoes_por_produto: { produto: string; sku?: string | number; total: number; motivos: Record<string, number> }[];
     reclamacoes_por_motivo: Record<string, number>;
-    reclamacoes_lista_abertas: ReclamacaoListaItem[];
+    reclamacoes_lista_periodo: ReclamacaoListaItem[];
     total_reclamacoes: number;
     total_devolucoes: number;
     devolucoes_por_motivo: Record<string, number>;
     devolucoes_por_produto: { produto: string; sku?: string | number; total: number; motivos: Record<string, number> }[];
-    devolucoes_lista_abertas: ReclamacaoListaItem[];
+    devolucoes_lista_periodo: ReclamacaoListaItem[];
     total_mediacoes: number;
     mediacoes_por_motivo: Record<string, number>;
     mediacoes_por_produto: { produto: string; sku?: string | number; total: number; motivos: Record<string, number> }[];
-    mediacoes_lista_abertas: ReclamacaoListaItem[];
+    mediacoes_lista_periodo: ReclamacaoListaItem[];
     ads_resumo: Record<string, number>;
     ads_performance: { item_id: string; sku: string | number; titulo: string; roas: number; acos: number; margem_pct: number; custo_ads: number; classificacao: string }[];
   };

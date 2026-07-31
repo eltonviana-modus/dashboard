@@ -5,7 +5,7 @@ import Section from "@/components/Section";
 import SimpleTable from "@/components/SimpleTable";
 import MotivoBarChart from "@/components/MotivoBarChart";
 import Badge from "@/components/Badge";
-import { formatDateBR, formatPrazoBR } from "@/lib/format";
+import { formatPrazoBR } from "@/lib/format";
 
 type ReclamacaoProduto = {
   produto: string;
@@ -21,6 +21,8 @@ type ReclamacaoAberta = {
   motivo: string;
   estagio?: string;
   status: string;
+  /** false quando o caso já está resolvido (estagio_reclamacao = pos-resolucao no backend). */
+  aberto: boolean;
   prazo_resposta?: string | null;
   turno_resposta?: string | null;
 };
@@ -34,20 +36,29 @@ function tonePorTurno(turno: string | null | undefined): "warn" | "neutral" {
 export default function ReclamacoesInterativo({
   porProduto,
   porMotivo,
-  listaAbertas,
-  tipo = "reclamacao"
+  lista,
+  tipo = "reclamacao",
+  modo
 }: {
   porProduto: ReclamacaoProduto[];
   porMotivo: Record<string, number>;
-  listaAbertas: ReclamacaoAberta[];
+  lista: ReclamacaoAberta[];
   /** Só muda os textos exibidos — a lógica é idêntica pra reclamação, devolução e mediação. */
   tipo?: "reclamacao" | "devolucao" | "mediacao";
+  /** "geral" = fixo, só em aberto, sem filtro de data. "operacao" = histórico (aberto + fechado),
+   * dinâmico conforme o período selecionado na página. Pedido do Elton em 2026-07-31. */
+  modo: "geral" | "operacao";
 }) {
   const [produtoSel, setProdutoSel] = useState<string | null>(null);
   const [motivoSel, setMotivoSel] = useState<string | null>(null);
+  const historico = modo === "operacao";
 
   const rotulo = tipo === "devolucao" ? "Devolução" : tipo === "mediacao" ? "Mediação" : "Reclamação";
   const rotuloPlural = tipo === "devolucao" ? "devoluções" : tipo === "mediacao" ? "mediações" : "reclamações";
+
+  const chartDesc = historico
+    ? "Histórico do período selecionado (abertas e fechadas) · clique numa fatia para filtrar a listagem abaixo"
+    : "Em aberto, sempre atualizado (sem filtro de data) · clique numa fatia para filtrar a listagem abaixo";
 
   // Top 10 (em vez de 15) pra manter a pizza legível — muitas fatias finas viram ruído visual.
   const topProdutosData = useMemo(() => {
@@ -55,46 +66,50 @@ export default function ReclamacoesInterativo({
     return Object.fromEntries(ordenado.map((p) => [p.produto, p.total]));
   }, [porProduto]);
 
-  // A listagem sempre mostra TODAS as ocorrências em aberto (com ou sem mediação), independente
-  // do período selecionado na página — só os gráficos acima respeitam o filtro de data.
-  const filtrados = listaAbertas.filter((r) => {
+  // Geral: a listagem sempre mostra TODAS as ocorrências em aberto, independente do período
+  // selecionado na página. Operação: histórico do período (aberta + fechada), já filtrado por
+  // data no backend — só o filtro de produto/motivo é aplicado aqui.
+  const filtrados = lista.filter((r) => {
     if (produtoSel && r.produto !== produtoSel) return false;
     if (motivoSel && r.motivo !== motivoSel) return false;
     return true;
   });
 
+  const tituloListagem = historico ? `Histórico de ${rotuloPlural} no período` : `Listagem de ${rotuloPlural} em aberto`;
+  const descricaoListagem = `${filtrados.length} ${rotuloPlural} ${
+    historico ? "no período selecionado (abertas e fechadas)" : "em aberto · independente do período selecionado acima"
+  }${produtoSel ? ` · produto: ${produtoSel}` : ""}${motivoSel ? ` · motivo: ${motivoSel}` : ""}`;
+  const emptyLabelListagem = historico
+    ? `Nenhuma ${rotuloPlural} encontrada no período com esse filtro.`
+    : `Nenhuma ${rotuloPlural} em aberto encontrada com esse filtro.`;
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Section title={`${rotulo} por produto`} description="Top 10 do período · clique numa fatia para filtrar a listagem abaixo">
+        <Section title={`${rotulo} por produto`} description={chartDesc}>
           <MotivoBarChart
             data={topProdutosData}
             selected={produtoSel}
             onSelect={(produto) => setProdutoSel((cur) => (cur === produto ? null : produto))}
-            emptyLabel={`Nenhuma ${rotuloPlural} no período.`}
+            emptyLabel={historico ? `Nenhuma ${rotuloPlural} no período.` : `Nenhuma ${rotuloPlural} em aberto.`}
           />
         </Section>
 
-        <Section title={`${rotulo} por motivo`} description="Do período · clique numa fatia para filtrar a listagem abaixo">
+        <Section title={`${rotulo} por motivo`} description={chartDesc}>
           <MotivoBarChart
             data={porMotivo}
             selected={motivoSel}
             onSelect={(m) => setMotivoSel((cur) => (cur === m ? null : m))}
-            emptyLabel={`Nenhuma ${rotuloPlural} no período.`}
+            emptyLabel={historico ? `Nenhuma ${rotuloPlural} no período.` : `Nenhuma ${rotuloPlural} em aberto.`}
           />
         </Section>
       </div>
 
-      <Section
-        title={`Listagem de ${rotuloPlural} em aberto`}
-        description={`${filtrados.length} ${rotuloPlural} em aberto · independente do período selecionado acima${
-          produtoSel ? ` · produto: ${produtoSel}` : ""
-        }${motivoSel ? ` · motivo: ${motivoSel}` : ""}`}
-      >
+      <Section title={tituloListagem} description={descricaoListagem}>
         <SimpleTable
           key={`${produtoSel ?? "all"}::${motivoSel ?? "all"}`}
-          emptyLabel={`Nenhuma ${rotuloPlural} em aberto encontrada com esse filtro.`}
-          exportFilename={`${rotuloPlural}_em_aberto`}
+          emptyLabel={emptyLabelListagem}
+          exportFilename={historico ? `${rotuloPlural}_historico_periodo` : `${rotuloPlural}_em_aberto`}
           exportColumns={[
             { key: "produto", label: "Produto" },
             { key: "sku", label: "SKU" },
@@ -127,10 +142,10 @@ export default function ReclamacoesInterativo({
             sku: r.sku ?? "-",
             numero_pedido: r.numero_pedido,
             motivo: r.motivo,
-            // Esta listagem só traz itens em aberto (statusFechado filtrado no backend), então
-            // o tone é sempre "warn" — o texto do badge (status amigável por estágio) já
-            // carrega o detalhe de qual fase está em aberto.
-            status: <Badge tone="warn">{r.status}</Badge>,
+            // Geral só traz itens em aberto, então o tone é sempre "warn". Operação traz histórico
+            // (aberto + fechado) -- usa o campo "aberto" (statusFechado no backend) pra colorir
+            // certo os já resolvidos.
+            status: <Badge tone={r.aberto ? "warn" : "good"}>{r.status}</Badge>,
             prazo_resposta: r.prazo_resposta ? formatPrazoBR(r.prazo_resposta) : "-",
             turno_resposta: r.turno_resposta ? (
               <Badge tone={tonePorTurno(r.turno_resposta)}>{r.turno_resposta}</Badge>

@@ -78,20 +78,27 @@ export default async function OperacaoPage({
         reclamação, não categoria irmã, então listar em 2 blocos duplicava a mesma venda. Ver
         ReclamacoesDevolucoesInterativo. Mediação continua em bloco separado (é ortogonal).
         Ajuste pedido pelo Elton em 2026-07-30.
+
+        Aba Operação = histórico (aberto + fechado), dinâmico conforme o filtro de data da página
+        (modo="operacao") — ao contrário da aba Geral, que é fixa e só mostra casos em aberto.
+        Pedido do Elton em 2026-07-31: essa aba estava sempre mostrando só abertas, ignorando o
+        período selecionado.
       */}
       <ReclamacoesDevolucoesInterativo
         reclamacaoPorProduto={o.reclamacoes_por_produto}
         reclamacaoPorMotivo={o.reclamacoes_por_motivo}
         devolucaoPorProduto={o.devolucoes_por_produto}
         devolucaoPorMotivo={o.devolucoes_por_motivo}
-        listaAbertas={o.reclamacoes_lista_abertas}
+        lista={o.reclamacoes_lista_periodo}
+        modo="operacao"
       />
 
       <ReclamacoesInterativo
         porProduto={o.mediacoes_por_produto}
         porMotivo={o.mediacoes_por_motivo}
-        listaAbertas={o.mediacoes_lista_abertas}
+        lista={o.mediacoes_lista_periodo}
         tipo="mediacao"
+        modo="operacao"
       />
 
       <Section title="Detalhe de Ads" description="Campanhas com custo no período">

@@ -16,6 +16,7 @@ type ReclamacaoProduto = {
 };
 
 type ReclamacaoAberta = {
+  data_reclamacao?: string | null;
   produto: string;
   sku?: string | number;
   numero_pedido: string | number;

@@ -139,6 +139,7 @@ export default function ReclamacoesDevolucoesInterativo({
           emptyLabel={emptyLabelListagem}
           exportFilename={historico ? "reclamacoes_devolucoes_historico_periodo" : "reclamacoes_devolucoes_em_aberto"}
           exportColumns={[
+            { key: "data_reclamacao", label: "Data da reclamação" },
             { key: "produto", label: "Produto" },
             { key: "sku", label: "SKU" },
             { key: "numero_pedido", label: "Nº da venda" },
@@ -150,6 +151,7 @@ export default function ReclamacoesDevolucoesInterativo({
             { key: "resolucao", label: "Resolução" }
           ]}
           exportRows={filtrados.map((r) => ({
+            data_reclamacao: r.data_reclamacao ? formatPrazoBR(r.data_reclamacao) : "",
             produto: r.produto,
             sku: r.sku ?? "",
             numero_pedido: r.numero_pedido,
@@ -161,6 +163,7 @@ export default function ReclamacoesDevolucoesInterativo({
             resolucao: r.resolucao ?? ""
           }))}
           columns={[
+            { key: "data_reclamacao", label: "Data da reclamação" },
             { key: "produto", label: "Produto" },
             { key: "sku", label: "SKU" },
             { key: "numero_pedido", label: "Nº da venda" },
@@ -172,6 +175,7 @@ export default function ReclamacoesDevolucoesInterativo({
             { key: "resolucao", label: "Resolução" }
           ]}
           rows={filtrados.map((r) => ({
+            data_reclamacao: r.data_reclamacao ? formatPrazoBR(r.data_reclamacao) : "-",
             produto: r.produto,
             sku: r.sku ?? "-",
             numero_pedido: r.numero_pedido,

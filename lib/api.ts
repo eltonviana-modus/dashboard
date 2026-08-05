@@ -4,6 +4,11 @@
 // ninguém tem ação pendente, ex. devolução em trânsito). Ver WF02 "Buscar Detalhe da
 // Reclamacao (Webhook)" para a origem desses dois campos.
 export type ReclamacaoListaItem = {
+  /** Data/hora de criação da reclamação (claim.date_created no ML, timestamp real com timezone).
+   * Só preenchido quando existe claim formal por trás (null em devolução sem claim, ver
+   * wf02_devolucao_sem_claim_shipment_not_delivered). Formatar com formatPrazoBR, não
+   * formatDateBR — é timestamp real, não data de calendário pura. Pedido do Elton em 2026-08-05. */
+  data_reclamacao: string | null;
   produto: string;
   sku?: string | number;
   numero_pedido: string | number;
@@ -150,6 +155,11 @@ export type DashboardData = {
     despesa_frete: number;
     despesa_comissao: number;
     faturamento_liquido: number;
+    /** Valor de pedidos cancelados/devolvidos no período (vem de `financeiro.cancelamentos_valor`
+     * no Postgres). Faturamento + cancelamentos deve bater com o faturamento bruto da aba Geral
+     * (que não desconta devolução) — se não bater, o `financeiro` ainda não reconciliou aquele
+     * pedido. Ver dash_financeiro_vs_geral_gap_jul2026 na memória. Pedido do Elton em 2026-08-01. */
+    cancelamentos: number;
     repasses_total: number;
     serie_pagos: { data: string; valor: number }[];
     serie_previstos: { data: string; valor: number }[];

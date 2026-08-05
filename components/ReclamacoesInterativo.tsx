@@ -114,6 +114,7 @@ export default function ReclamacoesInterativo({
           emptyLabel={emptyLabelListagem}
           exportFilename={historico ? `${rotuloPlural}_historico_periodo` : `${rotuloPlural}_em_aberto`}
           exportColumns={[
+            { key: "data_reclamacao", label: "Data da reclamação" },
             { key: "produto", label: "Produto" },
             { key: "sku", label: "SKU" },
             { key: "numero_pedido", label: "Nº da venda" },
@@ -124,6 +125,7 @@ export default function ReclamacoesInterativo({
             { key: "resolucao", label: "Resolução" }
           ]}
           exportRows={filtrados.map((r) => ({
+            data_reclamacao: r.data_reclamacao ? formatPrazoBR(r.data_reclamacao) : "",
             produto: r.produto,
             sku: r.sku ?? "",
             numero_pedido: r.numero_pedido,
@@ -134,6 +136,7 @@ export default function ReclamacoesInterativo({
             resolucao: r.resolucao ?? ""
           }))}
           columns={[
+            { key: "data_reclamacao", label: "Data da reclamação" },
             { key: "produto", label: "Produto" },
             { key: "sku", label: "SKU" },
             { key: "numero_pedido", label: "Nº da venda" },
@@ -144,6 +147,7 @@ export default function ReclamacoesInterativo({
             { key: "resolucao", label: "Resolução" }
           ]}
           rows={filtrados.map((r) => ({
+            data_reclamacao: r.data_reclamacao ? formatPrazoBR(r.data_reclamacao) : "-",
             produto: r.produto,
             sku: r.sku ?? "-",
             numero_pedido: r.numero_pedido,

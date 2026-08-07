@@ -5,7 +5,7 @@ import Badge from "@/components/Badge";
 import SimpleTable from "@/components/SimpleTable";
 import type { CsvColumn } from "@/lib/csv";
 
-export type TagTone = "good" | "warn" | "bad" | "neutral";
+export type TagTone = "good" | "warn" | "bad" | "neutral" | "info";
 
 export type TaggedListingColumn<T> = {
   key: string;

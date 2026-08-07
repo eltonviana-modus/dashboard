@@ -18,10 +18,10 @@ type Produto = {
   variacao_visitas_pct?: number;
 };
 
-const ANALISE_LABELS: Record<string, { label: string; tone: "good" | "warn" | "bad" | "neutral" }> = {
+const ANALISE_LABELS: Record<string, { label: string; tone: "good" | "warn" | "bad" | "neutral" | "info" }> = {
   muita_visita_sem_venda: { label: "Muita visita sem venda", tone: "warn" },
   sem_visita: { label: "Sem visita", tone: "neutral" },
-  queda_trafego: { label: "Queda de tráfego", tone: "warn" },
+  queda_trafego: { label: "Queda de tráfego", tone: "info" },
   ruptura_com_venda: { label: "Ruptura com venda perdida", tone: "bad" }
 };
 

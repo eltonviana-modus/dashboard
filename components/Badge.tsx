@@ -2,7 +2,8 @@ const TONES: Record<string, string> = {
   good: "bg-good-bg text-good",
   warn: "bg-warn-bg text-warn",
   bad: "bg-bad-bg text-bad",
-  neutral: "bg-surface-3 text-ink-700"
+  neutral: "bg-surface-3 text-ink-700",
+  info: "bg-accent-100 text-accent-700"
 };
 
 export default function Badge({ tone = "neutral", children }: { tone?: keyof typeof TONES; children: React.ReactNode }) {

@@ -1,5 +1,6 @@
 "use client";
 
+import Badge from "@/components/Badge";
 import TaggedListing from "@/components/TaggedListing";
 import { formatDeltaLabel, formatPct } from "@/lib/format";
 
@@ -36,6 +37,15 @@ export default function AnaliseVisitasListing({ items }: { items: Produto[] }) {
       columns={[
         { key: "titulo", label: "Produto" },
         { key: "sku", label: "SKU" },
+        {
+          key: "categoria",
+          label: "Tipo",
+          value: (i) => (ANALISE_LABELS[i.categoria] ?? { label: i.categoria }).label,
+          render: (i) => {
+            const t = ANALISE_LABELS[i.categoria] ?? { label: i.categoria, tone: "neutral" as const };
+            return <Badge tone={t.tone}>{t.label}</Badge>;
+          }
+        },
         { key: "estoque_disponivel", label: "Estoque", align: "right" },
         { key: "visitas_7d", label: "Visitas (7d)", align: "right" },
         { key: "vendas_7d", label: "Vendas (7d)", align: "right" },

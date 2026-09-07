@@ -75,11 +75,19 @@ export default function ReclamacoesDevolucoesInterativo({
   // Geral: a listagem sempre mostra TODAS as ocorrências em aberto, independente do período
   // selecionado na página. Operação: a listagem é o histórico do período (aberto + fechado) --
   // já vem filtrada por data do backend, só o filtro de produto/motivo é aplicado aqui.
-  const filtrados = lista.filter((r) => {
-    if (produtoSel && r.produto !== produtoSel) return false;
-    if (motivoSel && r.motivo !== motivoSel) return false;
-    return true;
-  });
+  const filtrados = lista
+    .filter((r) => {
+      if (produtoSel && r.produto !== produtoSel) return false;
+      if (motivoSel && r.motivo !== motivoSel) return false;
+      return true;
+    })
+    // Mais recente primeiro (por data de abertura da reclamação). Itens sem data
+    // (raro, ex. registro legado incompleto) vão pro final. Pedido do Elton em 2026-09-07.
+    .sort((a, b) => {
+      const da = a.data_reclamacao ? new Date(a.data_reclamacao).getTime() : -Infinity;
+      const db = b.data_reclamacao ? new Date(b.data_reclamacao).getTime() : -Infinity;
+      return db - da;
+    });
 
   const tituloListagem = historico
     ? "Histórico de reclamações e devoluções no período"

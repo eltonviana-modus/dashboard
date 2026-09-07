@@ -3,7 +3,7 @@
 import Badge from "@/components/Badge";
 import TaggedListing from "@/components/TaggedListing";
 
-type Anuncio = { item_id: string; sku: string | number; titulo: string; status: string; estoque: number };
+type Anuncio = { item_id: string; sku: string | number; titulo: string; status: string; estoque: number; vendas_30d?: number };
 
 // Status reais gerados pela coleta de anúncios (WF 03a): Ativo, Ativo - Moderado,
 // Pausado - Manual, Pausado - Estoque, Pausado - Infracao, Inativo - Revisar (+ "Sem status"
@@ -25,13 +25,15 @@ export default function AnunciosListing({ items, maxHeight }: { items: Anuncio[]
       tagLabel={(status) => ({ label: status, tone: toneParaStatus(status) })}
       exportFilename="status_dos_anuncios"
       emptyLabel="Nenhum anúncio encontrado."
-      searchKeys={["titulo", "sku"]}
+      searchKeys={["titulo", "sku", "item_id"]}
       maxHeight={maxHeight}
       columns={[
-        { key: "titulo", label: "Anúncio" },
         { key: "sku", label: "SKU" },
+        { key: "item_id", label: "MLB" },
+        { key: "titulo", label: "Anúncio" },
         { key: "status", label: "Status", render: (i) => <Badge tone={toneParaStatus(i.status)}>{i.status}</Badge> },
-        { key: "estoque", label: "Estoque", align: "right" }
+        { key: "estoque", label: "Estoque", align: "right" },
+        { key: "vendas_30d", label: "Vendas 30D", align: "right", render: (i) => i.vendas_30d ?? 0, value: (i) => i.vendas_30d ?? 0 }
       ]}
     />
   );

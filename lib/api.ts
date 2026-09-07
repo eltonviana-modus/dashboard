@@ -125,7 +125,7 @@ export type DashboardData = {
   };
   operacao: {
     anuncios_por_status: Record<string, number>;
-    anuncios_lista: { item_id: string; sku: string | number; titulo: string; status: string; estoque: number }[];
+    anuncios_lista: { item_id: string; sku: string | number; titulo: string; status: string; estoque: number; vendas_30d: number }[];
     total_anuncios: number;
     acoes_por_prioridade: Record<string, {
       sku: string | number; item_id: string; produto: string; categoria: string; problema: string;

@@ -8,7 +8,7 @@ import StatusPieChart from "@/components/StatusPieChart";
 import ReputacaoTermometro from "@/components/ReputacaoTermometro";
 import ReclamacoesInterativo from "@/components/ReclamacoesInterativo";
 import ReclamacoesDevolucoesInterativo from "@/components/ReclamacoesDevolucoesInterativo";
-import { Award, XCircle, Clock3, ShieldAlert } from "lucide-react";
+import { Award, XCircle, Clock3, ShieldAlert, AlertTriangle } from "lucide-react";
 import { formatBRL, formatNumber, formatPct, formatDateBR } from "@/lib/format";
 
 const ESTOQUE_LABELS: Record<string, string> = {
@@ -88,6 +88,12 @@ export default async function GeralPage({
                 <Clock3 size={15} className="text-ink-500" /> Taxa de atraso
               </span>
               <span className="text-xs font-medium text-ink-900">{formatPct(saude.tx_atraso)}</span>
+            </div>
+            <div className="flex items-center justify-between">
+              <span className="flex items-center gap-2 text-xs text-ink-500">
+                <AlertTriangle size={15} className="text-ink-500" /> Taxa de reclamação
+              </span>
+              <span className="text-xs font-medium text-ink-900">{formatPct(saude.tx_reclamacao)}</span>
             </div>
           </div>
         </Section>

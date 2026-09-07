@@ -9,7 +9,7 @@ type Produto60d = {
   sku: string | number;
   titulo: string;
   estoque_disponivel: number;
-  giro_60d: number;
+  vendas_60d: number;
   cobertura_dias: number;
   categoria: string;
   custo_unitario?: number | null;
@@ -44,6 +44,7 @@ export default function SaudeEstoqueListing({ items }: { items: Produto60d[] }) 
           render: (i) => <Badge tone={SAUDE_LABELS[i.categoria]?.tone ?? "neutral"}>{SAUDE_LABELS[i.categoria]?.label ?? i.categoria}</Badge>
         },
         { key: "estoque_disponivel", label: "Estoque", align: "right" },
+        { key: "vendas_60d", label: "Vendas 60D", align: "right" },
         {
           key: "cobertura_dias",
           label: "Cobertura (dias)",

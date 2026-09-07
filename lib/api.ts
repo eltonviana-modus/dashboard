@@ -100,10 +100,10 @@ export type DashboardData = {
       classe: "A" | "B" | "C";
     }[];
     trafego_por_item: { item_id: string; visitas: number; pedidos: number; conversao_pct: number }[];
-    produtos_60d: Record<string, { item_id: string; sku: string | number; titulo: string; estoque_disponivel: number; giro_60d: number; cobertura_dias: number }[]>;
+    produtos_60d: Record<string, { item_id: string; sku: string | number; titulo: string; estoque_disponivel: number; vendas_60d: number; cobertura_dias: number }[]>;
     produtos_60d_resumo: Record<string, number>;
     produtos_60d_lista: {
-      item_id: string; sku: string | number; titulo: string; estoque_disponivel: number; giro_60d: number; cobertura_dias: number; categoria: string;
+      item_id: string; sku: string | number; titulo: string; estoque_disponivel: number; vendas_60d: number; cobertura_dias: number; categoria: string;
       custo_unitario?: number | null; valor_estoque?: number | null;
     }[];
     produtos_problematicos_lista: {

@@ -1,0 +1,204 @@
+import Badge from "@/components/Badge";
+import SimpleTable from "@/components/SimpleTable";
+import TruncateTooltip from "@/components/TruncateTooltip";
+import { Truck, PackageX, AlertOctagon, Gauge, PauseCircle, ShieldCheck } from "lucide-react";
+import { formatNumber, formatPrazoBR } from "@/lib/format";
+import type { AlertasCriticos } from "@/lib/api";
+
+/**
+ * Tela de aviso crítico (Central de Alertas) — aba Geral.
+ * Reúne os 5 alertas que precisam de ação imediata do seller: pedidos com risco de atraso
+ * na postagem, produtos curva A/B perto de ruptura, reclamações com prazo de resposta em
+ * até 24h (D+1), reputação perto de comprometer alguma faixa (>=80% do limite) e anúncios
+ * pausados que ainda têm estoque disponível (oportunidade de reativar).
+ * Dados vêm de alertas_criticos no JSON do dashboard (WF11 grava as tabelas Postgres,
+ * "Calcular Dashboard" monta o objeto). Pedido do Elton em 2026-09-07/08.
+ */
+export default function AlertasCriticosCard({ alertas }: { alertas: AlertasCriticos }) {
+  const total = alertas.total_alertas;
+
+  return (
+    <section
+      className={`rounded-lg border p-5 ${
+        total > 0 ? "border-bad/40 bg-bad-bg/40" : "border-ink-300/40 bg-surface-1"
+      }`}
+    >
+      <div className="mb-4 flex items-start justify-between gap-4">
+        <div>
+          <h2 className="flex items-center gap-2 text-sm font-semibold text-ink-900">
+            {total > 0 ? <AlertOctagon size={16} className="text-bad" /> : <ShieldCheck size={16} className="text-good" />}
+            Central de alertas críticos
+          </h2>
+          <p className="mt-0.5 text-xs text-ink-500">Itens que precisam de ação agora, atualizados diariamente</p>
+        </div>
+        <Badge tone={total > 0 ? "bad" : "good"}>{total > 0 ? `${total} alerta${total > 1 ? "s" : ""}` : "Tudo em dia"}</Badge>
+      </div>
+
+      {total === 0 ? (
+        <p className="py-4 text-center text-sm text-ink-500">Nenhum alerta crítico agora. 🎉</p>
+      ) : (
+        <div className="space-y-5">
+          {alertas.pedidos_atrasados_postagem.length > 0 && (
+            <BlocoAlerta
+              icon={<Truck size={15} className="text-bad" />}
+              titulo="Pedidos com risco de atraso na postagem"
+              qtd={alertas.pedidos_atrasados_postagem.length}
+            >
+              <SimpleTable
+                maxHeight="14rem"
+                columns={[
+                  { key: "order_id", label: "Pedido" },
+                  { key: "item_titulo", label: "Item" },
+                  { key: "status_envio", label: "Status envio" },
+                  { key: "data_pedido", label: "Data do pedido" },
+                  { key: "dias_atraso", label: "Dias de atraso", align: "right" }
+                ]}
+                rows={alertas.pedidos_atrasados_postagem.map((p) => ({
+                  order_id: p.order_id,
+                  item_titulo: <TruncateTooltip text={p.item_titulo} maxWidth="16rem" maxLines={2} />,
+                  status_envio: p.status_envio || "-",
+                  data_pedido: formatPrazoBR(p.data_pedido),
+                  dias_atraso: (
+                    <span className={p.dias_atraso != null && p.dias_atraso > 3 ? "font-semibold text-bad" : ""}>
+                      {p.dias_atraso != null ? formatNumber(p.dias_atraso) : "-"}
+                    </span>
+                  )
+                }))}
+              />
+            </BlocoAlerta>
+          )}
+
+          {alertas.estoque_curva_ab_critico.length > 0 && (
+            <BlocoAlerta
+              icon={<PackageX size={15} className="text-bad" />}
+              titulo="Estoque crítico em produtos curva A/B (cobertura ≤ 15 dias)"
+              qtd={alertas.estoque_curva_ab_critico.length}
+            >
+              <SimpleTable
+                maxHeight="14rem"
+                columns={[
+                  { key: "titulo", label: "Produto" },
+                  { key: "sku", label: "SKU" },
+                  { key: "classe", label: "Classe" },
+                  { key: "cobertura_dias", label: "Cobertura (dias)", align: "right" },
+                  { key: "estoque_disponivel", label: "Estoque disp.", align: "right" }
+                ]}
+                rows={alertas.estoque_curva_ab_critico.map((p) => ({
+                  titulo: <TruncateTooltip text={p.titulo} maxWidth="16rem" maxLines={2} />,
+                  sku: p.sku ?? "-",
+                  classe: <Badge tone={p.classe === "A" ? "bad" : "warn"}>{p.classe}</Badge>,
+                  cobertura_dias: formatNumber(p.cobertura_dias),
+                  estoque_disponivel: formatNumber(p.estoque_disponivel)
+                }))}
+              />
+            </BlocoAlerta>
+          )}
+
+          {alertas.reclamacoes_prazo_d1.length > 0 && (
+            <BlocoAlerta
+              icon={<AlertOctagon size={15} className="text-bad" />}
+              titulo="Reclamações com prazo de resposta em até 24h"
+              qtd={alertas.reclamacoes_prazo_d1.length}
+            >
+              <SimpleTable
+                maxHeight="14rem"
+                columns={[
+                  { key: "order_id", label: "Pedido" },
+                  { key: "tipo", label: "Tipo" },
+                  { key: "status", label: "Status" },
+                  { key: "action_responsible", label: "Responsável pela ação" },
+                  { key: "due_date", label: "Prazo" },
+                  { key: "horas_restantes", label: "Horas restantes", align: "right" }
+                ]}
+                rows={alertas.reclamacoes_prazo_d1.map((r) => ({
+                  order_id: r.order_id || "-",
+                  tipo: r.tipo || "-",
+                  status: r.status || "-",
+                  action_responsible: r.action_responsible || "-",
+                  due_date: formatPrazoBR(r.due_date),
+                  horas_restantes: (
+                    <span className={r.horas_restantes <= 6 ? "font-semibold text-bad" : ""}>
+                      {formatNumber(r.horas_restantes)}h
+                    </span>
+                  )
+                }))}
+              />
+            </BlocoAlerta>
+          )}
+
+          {alertas.sla_comprometido?.alerta && (
+            <BlocoAlerta icon={<Gauge size={15} className="text-bad" />} titulo="Reputação perto de comprometer alguma faixa (≥80% do limite)">
+              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                <MetricaSla label="Reclamações" pct={alertas.sla_comprometido.claims_pct_comprometido} />
+                <MetricaSla label="Cancelamentos" pct={alertas.sla_comprometido.cancelamentos_pct_comprometido} />
+                <MetricaSla label="Atraso no manuseio" pct={alertas.sla_comprometido.atraso_handling_pct_comprometido} />
+              </div>
+            </BlocoAlerta>
+          )}
+
+          {alertas.anuncios_pausados_com_estoque.length > 0 && (
+            <BlocoAlerta
+              icon={<PauseCircle size={15} className="text-warn" />}
+              titulo="Anúncios pausados com estoque disponível (oportunidade de reativar)"
+              qtd={alertas.anuncios_pausados_com_estoque.length}
+            >
+              <SimpleTable
+                maxHeight="14rem"
+                columns={[
+                  { key: "titulo", label: "Produto" },
+                  { key: "sku", label: "SKU" },
+                  { key: "classe", label: "Classe" },
+                  { key: "estoque", label: "Estoque", align: "right" },
+                  { key: "status", label: "Status" }
+                ]}
+                rows={alertas.anuncios_pausados_com_estoque.map((a) => ({
+                  titulo: <TruncateTooltip text={a.titulo} maxWidth="16rem" maxLines={2} />,
+                  sku: a.sku ?? "-",
+                  classe: <Badge tone={a.classe === "A" ? "bad" : "warn"}>{a.classe}</Badge>,
+                  estoque: formatNumber(a.estoque),
+                  status: a.status || "-"
+                }))}
+              />
+            </BlocoAlerta>
+          )}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function BlocoAlerta({
+  icon,
+  titulo,
+  qtd,
+  children
+}: {
+  icon: React.ReactNode;
+  titulo: string;
+  qtd?: number;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="rounded-md border border-ink-300/30 bg-surface-1 p-3">
+      <div className="mb-2 flex items-center justify-between gap-2">
+        <span className="flex items-center gap-2 text-xs font-semibold text-ink-900">
+          {icon}
+          {titulo}
+        </span>
+        {qtd !== undefined && <Badge tone="bad">{qtd}</Badge>}
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function MetricaSla({ label, pct }: { label: string; pct: number | null }) {
+  if (pct == null) return null;
+  const tone = pct >= 100 ? "bad" : pct >= 80 ? "warn" : "good";
+  return (
+    <div className="flex items-center justify-between rounded-md bg-surface-2 px-3 py-2">
+      <span className="text-xs text-ink-500">{label}</span>
+      <Badge tone={tone}>{pct.toFixed(0)}%</Badge>
+    </div>
+  );
+}

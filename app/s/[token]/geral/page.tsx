@@ -8,6 +8,7 @@ import StatusPieChart from "@/components/StatusPieChart";
 import ReputacaoTermometro from "@/components/ReputacaoTermometro";
 import ReclamacoesInterativo from "@/components/ReclamacoesInterativo";
 import ReclamacoesDevolucoesInterativo from "@/components/ReclamacoesDevolucoesInterativo";
+import AlertasCriticosCard from "@/components/AlertasCriticosCard";
 import { Award, XCircle, Clock3, ShieldAlert, AlertTriangle } from "lucide-react";
 import { formatBRL, formatNumber, formatPct, formatDateBR } from "@/lib/format";
 
@@ -60,6 +61,8 @@ export default async function GeralPage({
         <KpiCard label="Visitas" value={formatNumber(g.visitas)} deltaPct={g.visitas_delta_pct} />
         <KpiCard label="Conversão" value={formatPct(g.taxa_conversao)} deltaPct={g.taxa_conversao_delta_pct} />
       </div>
+
+      <AlertasCriticosCard alertas={data.alertas_criticos} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Section title="Saúde da conta">

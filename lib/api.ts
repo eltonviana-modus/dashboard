@@ -31,6 +31,35 @@ export type ReclamacaoListaItem = {
   resolucao: string | null;
 };
 
+/** Tela de aviso crítico (aba Geral) -- pedido do Elton em 2026-09-08. Alimentado pelo WF11
+ * (tabelas pedidos_atraso, reclamacoes_criticas, reputacao_metrics) + derivado ao vivo de
+ * indicadores/anuncios no Code node "Calcular Dashboard" do workflow [DASH]. */
+export type AlertasCriticos = {
+  pedidos_atrasados_postagem: {
+    order_id: string; shipment_id: string; item_titulo: string;
+    status_envio: string; data_pedido: string | null; dias_atraso: number | null;
+  }[];
+  estoque_curva_ab_critico: {
+    item_id: string; sku: string | number; titulo: string; classe: "A" | "B";
+    cobertura_dias: number; estoque_disponivel: number;
+  }[];
+  reclamacoes_prazo_d1: {
+    claim_id: string; order_id: string; tipo: string; status: string;
+    action_responsible: string; due_date: string; horas_restantes: number;
+  }[];
+  sla_comprometido: {
+    claims_pct_comprometido: number | null;
+    cancelamentos_pct_comprometido: number | null;
+    atraso_handling_pct_comprometido: number | null;
+    alerta: boolean;
+  } | null;
+  anuncios_pausados_com_estoque: {
+    item_id: string; sku: string | number; titulo: string; classe: "A" | "B";
+    estoque: number; status: string;
+  }[];
+  total_alertas: number;
+};
+
 export type DashboardData = {
   seller: { nickname: string; seller_id: number | string };
   periodo: {
@@ -38,6 +67,7 @@ export type DashboardData = {
     anterior: { inicio: string; fim: string };
     dias: number;
   };
+  alertas_criticos: AlertasCriticos;
   geral: {
     faturamento: number;
     faturamento_delta_pct: number;

@@ -97,25 +97,28 @@ export default function ReclamacoesInterativo({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Section title={`${rotulo} por produto`} description={chartDesc}>
-          <MotivoBarChart
-            data={topProdutosData}
-            selected={produtoSel}
-            onSelect={(produto) => setProdutoSel((cur) => (cur === produto ? null : produto))}
-            emptyLabel={historico ? `Nenhuma ${rotuloPlural} no período.` : `Nenhuma ${rotuloPlural} em aberto.`}
-          />
-        </Section>
+      {/* FIX 2026-09-08 (Elton): gráficos de pizza (produto/motivo) só aparecem na aba Operação (histórico) -- a aba Geral pediu pra remover só a pizza, mantendo a listagem abaixo. */}
+      {historico && (
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <Section title={`${rotulo} por produto`} description={chartDesc}>
+            <MotivoBarChart
+              data={topProdutosData}
+              selected={produtoSel}
+              onSelect={(produto) => setProdutoSel((cur) => (cur === produto ? null : produto))}
+              emptyLabel={historico ? `Nenhuma ${rotuloPlural} no período.` : `Nenhuma ${rotuloPlural} em aberto.`}
+            />
+          </Section>
 
-        <Section title={`${rotulo} por motivo`} description={chartDesc}>
-          <MotivoBarChart
-            data={porMotivo}
-            selected={motivoSel}
-            onSelect={(m) => setMotivoSel((cur) => (cur === m ? null : m))}
-            emptyLabel={historico ? `Nenhuma ${rotuloPlural} no período.` : `Nenhuma ${rotuloPlural} em aberto.`}
-          />
-        </Section>
-      </div>
+          <Section title={`${rotulo} por motivo`} description={chartDesc}>
+            <MotivoBarChart
+              data={porMotivo}
+              selected={motivoSel}
+              onSelect={(m) => setMotivoSel((cur) => (cur === m ? null : m))}
+              emptyLabel={historico ? `Nenhuma ${rotuloPlural} no período.` : `Nenhuma ${rotuloPlural} em aberto.`}
+            />
+          </Section>
+        </div>
+      )}
 
       <Section title={tituloListagem} description={descricaoListagem}>
         <SimpleTable

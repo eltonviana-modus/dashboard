@@ -4,11 +4,32 @@ import DashboardChrome from "@/components/DashboardChrome";
 import KpiCard from "@/components/KpiCard";
 import Section from "@/components/Section";
 import Badge from "@/components/Badge";
+import StatusPieChart from "@/components/StatusPieChart";
 import ReputacaoTermometro from "@/components/ReputacaoTermometro";
 import ReclamacoesInterativo from "@/components/ReclamacoesInterativo";
 import ReclamacoesDevolucoesInterativo from "@/components/ReclamacoesDevolucoesInterativo";
 import { Award, XCircle, Clock3, ShieldAlert, AlertTriangle } from "lucide-react";
 import { formatBRL, formatNumber, formatPct, formatDateBR } from "@/lib/format";
+
+const ESTOQUE_LABELS: Record<string, string> = {
+  em_ruptura: "Em ruptura",
+  ruptura_iminente: "Ruptura iminente",
+  critico: "Crítico",
+  atencao: "Atenção",
+  saudavel: "Saudável",
+  excedente: "Excedente",
+  sem_vendas: "Parado (sem venda)"
+};
+
+const ESTOQUE_CORES: Record<string, string> = {
+  em_ruptura: "#dc2626",
+  ruptura_iminente: "#f97316",
+  critico: "#f59e0b",
+  atencao: "#eab308",
+  saudavel: "#22c55e",
+  excedente: "#0891b2",
+  sem_vendas: "#64748b"
+};
 
 export default async function GeralPage({
   params,
@@ -23,6 +44,13 @@ export default async function GeralPage({
   const g = data.geral;
   const saude = g.saude_conta;
 
+  const estoqueChartData = Object.fromEntries(
+    Object.entries(data.vendas.produtos_60d_resumo).map(([k, v]) => [ESTOQUE_LABELS[k] ?? k, v])
+  );
+  const estoqueColorMap = Object.fromEntries(
+    Object.entries(data.vendas.produtos_60d_resumo).map(([k]) => [ESTOQUE_LABELS[k] ?? k, ESTOQUE_CORES[k] ?? "#64748b"])
+  );
+
   return (
     <DashboardChrome token={params.token} active="geral" data={data}>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
@@ -33,7 +61,7 @@ export default async function GeralPage({
         <KpiCard label="Conversão" value={formatPct(g.taxa_conversao)} deltaPct={g.taxa_conversao_delta_pct} />
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <Section title="Saúde da conta">
           <div className="space-y-4">
             <div>
@@ -70,6 +98,13 @@ export default async function GeralPage({
           </div>
         </Section>
 
+        <Section title="Status dos anúncios" description={`${data.operacao.total_anuncios} anúncios monitorados`}>
+          <StatusPieChart data={data.operacao.anuncios_por_status} />
+        </Section>
+
+        <Section title="Saúde do estoque" description="Classificação por giro e cobertura (60d)">
+          <StatusPieChart data={estoqueChartData} colorMap={estoqueColorMap} />
+        </Section>
       </div>
 
       {/*

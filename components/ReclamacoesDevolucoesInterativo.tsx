@@ -101,45 +101,51 @@ export default function ReclamacoesDevolucoesInterativo({
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Section title="Reclamação por produto" description={chartDesc}>
-          <MotivoBarChart
-            data={topReclamacaoProduto}
-            selected={produtoSel}
-            onSelect={(produto) => setProdutoSel((cur) => (cur === produto ? null : produto))}
-            emptyLabel={historico ? "Nenhuma reclamação no período." : "Nenhuma reclamação em aberto."}
-          />
-        </Section>
+      {/* FIX 2026-09-08 (Elton): gráficos de pizza (produto/motivo) só aparecem na aba Operação
+          (histórico) -- a aba Geral pediu pra remover só a pizza, mantendo a listagem abaixo. */}
+      {historico && (
+        <>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <Section title="Reclamação por produto" description={chartDesc}>
+              <MotivoBarChart
+                data={topReclamacaoProduto}
+                selected={produtoSel}
+                onSelect={(produto) => setProdutoSel((cur) => (cur === produto ? null : produto))}
+                emptyLabel={historico ? "Nenhuma reclamação no período." : "Nenhuma reclamação em aberto."}
+              />
+            </Section>
 
-        <Section title="Reclamação por motivo" description={chartDesc}>
-          <MotivoBarChart
-            data={reclamacaoPorMotivo}
-            selected={motivoSel}
-            onSelect={(m) => setMotivoSel((cur) => (cur === m ? null : m))}
-            emptyLabel={historico ? "Nenhuma reclamação no período." : "Nenhuma reclamação em aberto."}
-          />
-        </Section>
-      </div>
+            <Section title="Reclamação por motivo" description={chartDesc}>
+              <MotivoBarChart
+                data={reclamacaoPorMotivo}
+                selected={motivoSel}
+                onSelect={(m) => setMotivoSel((cur) => (cur === m ? null : m))}
+                emptyLabel={historico ? "Nenhuma reclamação no período." : "Nenhuma reclamação em aberto."}
+              />
+            </Section>
+          </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        <Section title="Devolução por produto" description={chartDesc}>
-          <MotivoBarChart
-            data={topDevolucaoProduto}
-            selected={produtoSel}
-            onSelect={(produto) => setProdutoSel((cur) => (cur === produto ? null : produto))}
-            emptyLabel={historico ? "Nenhuma devolução no período." : "Nenhuma devolução em aberto."}
-          />
-        </Section>
+          <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <Section title="Devolução por produto" description={chartDesc}>
+              <MotivoBarChart
+                data={topDevolucaoProduto}
+                selected={produtoSel}
+                onSelect={(produto) => setProdutoSel((cur) => (cur === produto ? null : produto))}
+                emptyLabel={historico ? "Nenhuma devolução no período." : "Nenhuma devolução em aberto."}
+              />
+            </Section>
 
-        <Section title="Devolução por motivo" description={chartDesc}>
-          <MotivoBarChart
-            data={devolucaoPorMotivo}
-            selected={motivoSel}
-            onSelect={(m) => setMotivoSel((cur) => (cur === m ? null : m))}
-            emptyLabel={historico ? "Nenhuma devolução no período." : "Nenhuma devolução em aberto."}
-          />
-        </Section>
-      </div>
+            <Section title="Devolução por motivo" description={chartDesc}>
+              <MotivoBarChart
+                data={devolucaoPorMotivo}
+                selected={motivoSel}
+                onSelect={(m) => setMotivoSel((cur) => (cur === m ? null : m))}
+                emptyLabel={historico ? "Nenhuma devolução no período." : "Nenhuma devolução em aberto."}
+              />
+            </Section>
+          </div>
+        </>
+      )}
 
       <Section title={tituloListagem} description={descricaoListagem}>
         <SimpleTable

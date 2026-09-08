@@ -42,14 +42,31 @@ export type AlertasCriticos = {
   estoque_curva_ab_critico: {
     item_id: string; sku: string | number; titulo: string; classe: "A" | "B";
     cobertura_dias: number; estoque_disponivel: number;
+    /** Qtd vendida e faturamento nos ultimos 60 dias -- mesmos campos ja usados na curva ABC,
+     * so pra dar contexto de quanto o item vende/fatura junto do alerta de ruptura. Pedido do
+     * Elton em 2026-09-08. */
+    vendas_60d: number; faturamento_60d: number;
   }[];
   reclamacoes_prazo_d1: {
     claim_id: string; order_id: string; tipo: string; status: string;
     action_responsible: string; due_date: string; horas_restantes: number;
   }[];
   sla_comprometido: {
+    /** claims_rate/cancelamentos_rate/atraso_handling_rate = taxa bruta atual (fracao, ex.
+     * 0.0129 = 1.29%); *_limite = teto da faixa atual antes de piorar a reputacao (ex. 0.02 =
+     * 2%); *_pct_comprometido = quanto da faixa atual ja foi consumido (rate/limite*100) -- NAO
+     * e a taxa de reclamacao em si, e sim proximidade de romper pro proximo nivel. Exibir os
+     * dois juntos evita confundir com a taxa (ex. tx_reclamacao) mostrada em Saude da conta.
+     * Pedido do Elton em 2026-09-08 ("calculo da reputacao ta errado" -- na verdade o calculo
+     * bate, so a exibicao sem a taxa/limite ao lado confundia). */
+    claims_rate: number | null;
+    claims_limite: number | null;
     claims_pct_comprometido: number | null;
+    cancelamentos_rate: number | null;
+    cancelamentos_limite: number | null;
     cancelamentos_pct_comprometido: number | null;
+    atraso_handling_rate: number | null;
+    atraso_handling_limite: number | null;
     atraso_handling_pct_comprometido: number | null;
     alerta: boolean;
   } | null;

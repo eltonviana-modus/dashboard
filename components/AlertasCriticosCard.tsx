@@ -2,7 +2,7 @@ import Badge from "@/components/Badge";
 import SimpleTable from "@/components/SimpleTable";
 import TruncateTooltip from "@/components/TruncateTooltip";
 import { Truck, PackageX, AlertOctagon, Gauge, PauseCircle, ShieldCheck } from "lucide-react";
-import { formatNumber, formatPrazoBR } from "@/lib/format";
+import { formatBRL, formatNumber, formatPct, formatPrazoBR } from "@/lib/format";
 import type { AlertasCriticos } from "@/lib/api";
 
 /**
@@ -37,7 +37,11 @@ export default function AlertasCriticosCard({ alertas }: { alertas: AlertasCriti
       {total === 0 ? (
         <p className="py-4 text-center text-sm text-ink-500">Nenhum alerta crítico agora. 🎉</p>
       ) : (
-        <div className="space-y-5">
+        /* Scroll do card todo (max-h + overflow) -- antes so as tabelas internas (14rem) tinham
+         * limite, e o card em si crescia sem teto conforme mais blocos/itens apareciam. Agora tem
+         * os 2 niveis: scroll do card (aqui) + scroll de cada tabela interna (mantido). Pedido do
+         * Elton em 2026-09-08. */
+        <div className="max-h-[32rem] space-y-5 overflow-y-auto pr-1">
           {alertas.pedidos_atrasados_postagem.length > 0 && (
             <BlocoAlerta
               icon={<Truck size={15} className="text-bad" />}
@@ -81,14 +85,18 @@ export default function AlertasCriticosCard({ alertas }: { alertas: AlertasCriti
                   { key: "sku", label: "SKU" },
                   { key: "classe", label: "Classe" },
                   { key: "cobertura_dias", label: "Cobertura (dias)", align: "right" },
-                  { key: "estoque_disponivel", label: "Estoque disp.", align: "right" }
+                  { key: "estoque_disponivel", label: "Estoque disp.", align: "right" },
+                  { key: "vendas_60d", label: "Vendas 60d", align: "right" },
+                  { key: "faturamento_60d", label: "Faturamento 60d", align: "right" }
                 ]}
                 rows={alertas.estoque_curva_ab_critico.map((p) => ({
                   titulo: <TruncateTooltip text={p.titulo} maxWidth="16rem" maxLines={2} />,
                   sku: p.sku ?? "-",
                   classe: <Badge tone={p.classe === "A" ? "bad" : "warn"}>{p.classe}</Badge>,
                   cobertura_dias: formatNumber(p.cobertura_dias),
-                  estoque_disponivel: formatNumber(p.estoque_disponivel)
+                  estoque_disponivel: formatNumber(p.estoque_disponivel),
+                  vendas_60d: formatNumber(p.vendas_60d),
+                  faturamento_60d: formatBRL(p.faturamento_60d)
                 }))}
               />
             </BlocoAlerta>
@@ -129,9 +137,24 @@ export default function AlertasCriticosCard({ alertas }: { alertas: AlertasCriti
           {alertas.sla_comprometido?.alerta && (
             <BlocoAlerta icon={<Gauge size={15} className="text-bad" />} titulo="Reputação perto de comprometer alguma faixa (≥80% do limite)">
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <MetricaSla label="Reclamações" pct={alertas.sla_comprometido.claims_pct_comprometido} />
-                <MetricaSla label="Cancelamentos" pct={alertas.sla_comprometido.cancelamentos_pct_comprometido} />
-                <MetricaSla label="Atraso no manuseio" pct={alertas.sla_comprometido.atraso_handling_pct_comprometido} />
+                <MetricaSla
+                  label="Reclamações"
+                  pct={alertas.sla_comprometido.claims_pct_comprometido}
+                  rate={alertas.sla_comprometido.claims_rate}
+                  limite={alertas.sla_comprometido.claims_limite}
+                />
+                <MetricaSla
+                  label="Cancelamentos"
+                  pct={alertas.sla_comprometido.cancelamentos_pct_comprometido}
+                  rate={alertas.sla_comprometido.cancelamentos_rate}
+                  limite={alertas.sla_comprometido.cancelamentos_limite}
+                />
+                <MetricaSla
+                  label="Atraso no manuseio"
+                  pct={alertas.sla_comprometido.atraso_handling_pct_comprometido}
+                  rate={alertas.sla_comprometido.atraso_handling_rate}
+                  limite={alertas.sla_comprometido.atraso_handling_limite}
+                />
               </div>
             </BlocoAlerta>
           )}
@@ -192,13 +215,36 @@ function BlocoAlerta({
   );
 }
 
-function MetricaSla({ label, pct }: { label: string; pct: number | null }) {
+/**
+ * pct = quanto da faixa atual de reputação já foi consumido (taxa/limite*100) -- NÃO é a taxa de
+ * reclamação/cancelamento em si (essa é rate, ex. 0.0129 = 1,29%). Mostrar só o pct sem contexto
+ * confundia com tx_reclamacao do card Saúde da conta (ex. pct=99% ao lado de uma taxa real de só
+ * 1%, porque o teto da faixa é bem próximo da taxa atual). Pedido do Elton em 2026-09-08.
+ */
+function MetricaSla({
+  label,
+  pct,
+  rate,
+  limite
+}: {
+  label: string;
+  pct: number | null;
+  rate?: number | null;
+  limite?: number | null;
+}) {
   if (pct == null) return null;
   const tone = pct >= 100 ? "bad" : pct >= 80 ? "warn" : "good";
   return (
     <div className="flex items-center justify-between rounded-md bg-surface-2 px-3 py-2">
-      <span className="text-xs text-ink-500">{label}</span>
-      <Badge tone={tone}>{pct.toFixed(0)}%</Badge>
+      <div>
+        <span className="block text-xs text-ink-500">{label}</span>
+        {rate != null && limite != null && (
+          <span className="block text-[11px] text-ink-400">
+            taxa {formatPct(rate * 100)} / limite {formatPct(limite * 100)}
+          </span>
+        )}
+      </div>
+      <Badge tone={tone}>{pct.toFixed(0)}% do limite</Badge>
     </div>
   );
 }

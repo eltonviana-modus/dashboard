@@ -38,6 +38,10 @@ export type AlertasCriticos = {
   pedidos_atrasados_postagem: {
     order_id: string; shipment_id: string; item_titulo: string;
     status_envio: string; data_pedido: string | null; dias_atraso: number | null;
+    /** true só no dia em que o registro foi visto pela primeira vez (atualizado_em == hoje) --
+     * usado pra pintar a bolinha de "novo" estilo WhatsApp na tabela. Some sozinho no dia
+     * seguinte. Pedido do Elton em 2026-09-11. */
+    novo: boolean;
   }[];
   estoque_curva_ab_critico: {
     item_id: string; sku: string | number; titulo: string; classe: "A" | "B";
@@ -46,10 +50,16 @@ export type AlertasCriticos = {
      * so pra dar contexto de quanto o item vende/fatura junto do alerta de ruptura. Pedido do
      * Elton em 2026-09-08. */
     vendas_60d: number; faturamento_60d: number;
+    /** Ver nota em pedidos_atrasados_postagem.novo -- aqui vem de alertas_primeiro_visto
+     * (categoria Estoque_Critico), já que este alerta é consolidado por SKU e não tem uma
+     * tabela própria com atualizado_em. */
+    novo: boolean;
   }[];
   reclamacoes_prazo_d1: {
     claim_id: string; order_id: string; tipo: string; status: string;
     action_responsible: string; due_date: string; horas_restantes: number;
+    /** Ver nota em pedidos_atrasados_postagem.novo. */
+    novo: boolean;
   }[];
   sla_comprometido: {
     /** claims_rate/cancelamentos_rate/atraso_handling_rate = taxa bruta atual (fracao, ex.
@@ -69,10 +79,16 @@ export type AlertasCriticos = {
     atraso_handling_limite: number | null;
     atraso_handling_pct_comprometido: number | null;
     alerta: boolean;
+    /** true no dia em que o SLA passou a ficar comprometido (comparado com a leitura anterior
+     * de reputacao_metrics) -- ver nota em pedidos_atrasados_postagem.novo. */
+    novo: boolean;
   } | null;
   anuncios_pausados_com_estoque: {
     item_id: string; sku: string | number; titulo: string; classe: "A" | "B";
     estoque: number; status: string;
+    /** Ver nota em pedidos_atrasados_postagem.novo -- vem de alertas_primeiro_visto (categoria
+     * Anuncio_Pausado_Com_Estoque). */
+    novo: boolean;
   }[];
   total_alertas: number;
 };
